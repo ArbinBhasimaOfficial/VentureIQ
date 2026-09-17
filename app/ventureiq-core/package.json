@@ -9,6 +9,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "contract:emit": "prisma contract emit",
+    "db:update": "prisma db update",
+    "db:sign": "prisma db sign",
     "test-user": "tsx src/prisma/user-test.ts",
     "test-script": "tsx src/prisma/script.ts",
     "test-create": "tsx src/prisma/create-test.ts"

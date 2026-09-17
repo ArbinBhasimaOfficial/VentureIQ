@@ -5,6 +5,12 @@ enum Role {
   ADMIN
 }
 
+enum ReportStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -14,5 +20,71 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
+  reports   MarketReport[]
+
   @@map("users")
+}
+
+model MarketCategory {
+  id            String @id @default(uuid())
+  name          String @unique
+  slug          String @unique
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  reports       MarketReport[]
+
+  @@map("market_categories")
+}
+
+model MarketReport {
+  id            String @id @default(uuid())
+  title         String
+  slug          String @unique
+  summary       String
+  content       String
+  status        ReportStatus @default(DRAFT)
+  industry      String 
+  region        String?
+
+
+  categoryId    String
+  category      MarketCategory @relation(fields: [categoryId], references: [id])
+
+  authorId      String
+  author        User @relation(fields: [authorId], references: [id])
+
+  datasets      Dataset[]
+
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  @@index([categoryId])
+  @@index([status])
+
+  @@map("market_reports")
+}
+
+model Dataset {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  data        Json
+  source      String?
+
+  reportId String
+  report   MarketReport @relation(
+    fields: [reportId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([reportId])
+
+  @@map("datasets")
 }

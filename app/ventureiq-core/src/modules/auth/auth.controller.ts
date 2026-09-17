@@ -1,4 +1,5 @@
 
+import { db } from "../../prisma/db.js";
 import type { Request, Response } from "express";
 import { loginSchema, registerSchema } from "./auth.schema.js";
 import { loginUser, registerUser } from "./auth.service.js";
@@ -73,4 +74,41 @@ export async function login(req: Request, res: Response) {
       message: "Internal server error",
     });
   }
+}
+
+export async function getMe(
+  req: Request & { user?: { userId: string } },
+  res: Response,
+) {
+  if (!req.user) {
+    return res.status(401).json({
+      status: "error",
+      message: "Not authenticated",
+    });
+  }
+
+  const User = db.orm.public!.User!;
+
+  const user = await User
+    .where({ id: req.user.userId })
+    .all()
+    .first();
+
+  if (!user) {
+    return res.status(404).json({
+      status: "error",
+      message: "User not found",
+    });
+  }
+
+  return res.status(200).json({
+    status: "ok",
+    data: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+    },
+  });
 }

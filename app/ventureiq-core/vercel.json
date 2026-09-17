@@ -1,15 +1,4 @@
 {
   "version": 2,
-  "buildCommand": "pnpm build",
-  "functions": {
-    "api/index.ts": {
-      "runtime": "nodejs22.x"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api"
-    }
-  ]
+  "buildCommand": "pnpm build"
 }
