@@ -1,0 +1,248 @@
+VentureIQ API Endpoints
+1. Authentication and Account
+
+These handle registration, login, sessions, password recovery and MFA.
+
+Method	Endpoint	Purpose
+POST	/api/v1/auth/signup	Register user
+POST	/api/v1/auth/login	Login
+POST	/api/v1/auth/logout	Logout
+POST	/api/v1/auth/refresh	Refresh access token
+POST	/api/v1/auth/forgot-password	Request password reset
+POST	/api/v1/auth/reset-password	Reset password
+GET	/api/v1/auth/me	Get authenticated user
+POST	/api/v1/auth/mfa/setup	Setup MFA
+POST	/api/v1/auth/mfa/verify	Verify MFA
+DELETE	/api/v1/auth/mfa	Remove MFA
+
+2. Profile and Preferences
+
+User profile, preferences and projects.
+
+Method	Endpoint	Purpose
+GET	/api/v1/profile	Get profile
+PATCH	/api/v1/profile	Update profile
+GET	/api/v1/profile/preferences	Get preferences
+PATCH	/api/v1/profile/preferences	Update preferences
+GET	/api/v1/profile/projects	List projects
+POST	/api/v1/profile/projects	Create project
+GET	/api/v1/profile/projects/:projectId	Get project
+PATCH	/api/v1/profile/projects/:projectId	Update project
+DELETE	/api/v1/profile/projects/:projectId	Delete/archive project
+3. Industries and Reference Data
+
+The specification defines 16 supported industries plus reference data APIs.
+
+Method	Endpoint	Purpose
+GET	/api/v1/industries	List industries
+GET	/api/v1/industries/:id	Get industry
+GET	/api/v1/industries/:id/trends	Industry trends
+GET	/api/v1/industries/:id/benchmarks	Industry benchmarks
+GET	/api/v1/industries/:id/regulations	Industry regulations
+GET	/api/v1/industries/:id/competitor-signals	Competitor signals
+GET	/api/v1/reference/regions	List regions
+GET	/api/v1/reference/source-types	List source types
+GET	/api/v1/reference/report-types	List report types
+
+Common parameters include:
+
+region
+dateFrom
+dateTo
+includeSources
+limit
+
+4. Consultation Sessions
+
+These manage the AI consultation and conversation workflow.
+
+Method	Endpoint	Purpose
+POST	/api/v1/sessions	Create session
+GET	/api/v1/sessions	List sessions
+GET	/api/v1/sessions/:id	Get session
+PATCH	/api/v1/sessions/:id	Update session
+DELETE	/api/v1/sessions/:id	Delete/archive session
+GET	/api/v1/sessions/:id/messages	Get messages
+POST	/api/v1/sessions/:id/messages	Send AI message
+GET	/api/v1/sessions/:id/stream	Stream AI response
+POST	/api/v1/sessions/:id/clarify	Clarification
+POST	/api/v1/sessions/:id/summarize	Summarize session
+POST	/api/v1/sessions/:id/complete	Complete consultation
+5. Research
+
+These manage scraping, enrichment, vectorization, synthesis and long running research jobs.
+
+Method	Endpoint	Purpose
+POST	/api/v1/research/trigger	Start research
+POST	/api/v1/research/retrigger/:jobId	Retry research
+GET	/api/v1/research/jobs	List research jobs
+GET	/api/v1/research/status/:jobId	Get job status
+GET	/api/v1/research/status/:jobId/events	Get job events
+POST	/api/v1/research/status/:jobId/cancel	Cancel job
+GET	/api/v1/research/results/:jobId	Get research results
+GET	/api/v1/research/results/:jobId/sources	Get research sources
+GET	/api/v1/research/results/:jobId/chunks	Get processed chunks
+POST	/api/v1/research/estimate	Estimate research
+6. Knowledge
+
+The knowledge API provides search and retrieval across indexed market intelligence.
+
+Method	Endpoint	Purpose
+GET	/api/v1/knowledge/search	Search knowledge
+POST	/api/v1/knowledge/search	Advanced knowledge search
+GET	/api/v1/knowledge/chunks/:chunkId	Get chunk
+GET	/api/v1/knowledge/sources/:sourceId	Get source
+GET	/api/v1/knowledge/sources/:sourceId/chunks	Get source chunks
+GET	/api/v1/knowledge/failures	Search failures
+GET	/api/v1/knowledge/trends	Search trends
+GET	/api/v1/knowledge/regulations	Search regulations
+GET	/api/v1/knowledge/competitors	Search competitors
+GET	/api/v1/knowledge/citations/:citationId	Resolve citation
+7. Data
+
+Data inventory and lineage APIs.
+
+Method	Endpoint	Purpose
+GET	/api/v1/data/sources	List sources
+GET	/api/v1/data/sources/:id	Get source
+GET	/api/v1/data/sources/:id/content	Get cleaned content
+GET	/api/v1/data/sources/:id/raw	Get raw metadata
+GET	/api/v1/data/chunks	List chunks
+GET	/api/v1/data/embeddings/:id	Get embedding
+GET	/api/v1/data/freshness	Data freshness
+GET	/api/v1/data/coverage	Data coverage
+GET	/api/v1/data/lineage/:artifactId	Data lineage
+8. Report Templates
+
+Method	Endpoint	Purpose
+GET	/api/v1/reports/templates	List templates
+GET	/api/v1/reports/templates/:templateId	Get template
+POST	/api/v1/reports/templates/:templateId/preview	Preview template
+9. Reports
+
+This is one of the most important modules for VentureIQ.
+
+Method	Endpoint	Purpose
+POST	/api/v1/reports	Create report
+GET	/api/v1/reports	List reports
+GET	/api/v1/reports/:reportId	Get report
+PATCH	/api/v1/reports/:reportId	Update report
+DELETE	/api/v1/reports/:reportId	Delete/archive report
+GET	/api/v1/reports/:reportId/status	Report status
+POST	/api/v1/reports/:reportId/regenerate	Regenerate report
+POST	/api/v1/reports/:reportId/duplicate	Duplicate report
+10. Report Content
+
+Method	Endpoint	Purpose
+GET	/api/v1/reports/:reportId/summary	Executive summary
+GET	/api/v1/reports/:reportId/market-analysis	Market analysis
+GET	/api/v1/reports/:reportId/competitor-analysis	Competitor analysis
+GET	/api/v1/reports/:reportId/risk-analysis	Risk analysis
+GET	/api/v1/reports/:reportId/regulatory-analysis	Regulatory analysis
+GET	/api/v1/reports/:reportId/financial-benchmarks	Financial benchmarks
+GET	/api/v1/reports/:reportId/marketing-analysis	Marketing analysis
+GET	/api/v1/reports/:reportId/recommendations	Recommendations
+GET	/api/v1/reports/:reportId/citations	Report citations
+GET	/api/v1/reports/:reportId/appendix	Appendix
+11. Report Data and Charts
+
+Method	Endpoint	Purpose
+GET	/api/v1/reports/:reportId/data	Full report dataset
+GET	/api/v1/reports/:reportId/data/table/:tableKey	Report table
+GET	/api/v1/reports/:reportId/data/chart/:chartKey	Chart data
+GET	/api/v1/reports/:reportId/data/timeseries	Time series
+GET	/api/v1/reports/:reportId/data/comparisons	Comparisons
+GET	/api/v1/reports/:reportId/data/kpis	KPIs
+GET	/api/v1/reports/:reportId/data/assumptions	Assumptions
+GET	/api/v1/reports/:reportId/data/lineage	Metric lineage
+12. Report Export and Sharing
+
+Method	Endpoint	Purpose
+GET	/api/v1/reports/:reportId/export/pdf	Export PDF
+GET	/api/v1/reports/:reportId/export/docx	Export DOCX
+GET	/api/v1/reports/:reportId/export/markdown	Export Markdown
+GET	/api/v1/reports/:reportId/export/json	Export JSON
+GET	/api/v1/reports/:reportId/export/csv	Export CSV
+POST	/api/v1/reports/:reportId/share	Share report
+DELETE	/api/v1/reports/:reportId/share/:shareId	Revoke sharing
+13. Blueprints
+
+Method	Endpoint	Purpose
+GET	/api/v1/blueprints	List blueprints
+POST	/api/v1/blueprints	Create blueprint
+GET	/api/v1/blueprints/:id	Get blueprint
+PATCH	/api/v1/blueprints/:id	Update blueprint
+GET	/api/v1/blueprints/:id/steps	Get steps
+POST	/api/v1/blueprints/:id/steps	Add step
+PATCH	/api/v1/blueprints/:id/steps/:stepId	Update step
+DELETE	/api/v1/blueprints/:id/steps/:stepId	Delete step
+GET	/api/v1/blueprints/:id/gantt	Gantt data
+GET	/api/v1/blueprints/:id/export	Export blueprint
+14. Marketing
+
+Method	Endpoint	Purpose
+GET	/api/v1/blueprints/:id/marketing	Marketing playbook
+GET	/api/v1/marketing/personas/:blueprintId	Buyer personas
+GET	/api/v1/marketing/channels/:blueprintId	Acquisition channels
+GET	/api/v1/marketing/ad-copy/:blueprintId	Ad copy
+GET	/api/v1/marketing/content-calendar/:blueprintId	Content calendar
+POST	/api/v1/marketing/generate	Generate marketing
+POST	/api/v1/marketing/experiments	Create experiment
+15. Alerts and Watchlists
+
+Method	Endpoint	Purpose
+GET	/api/v1/alerts	List alerts
+POST	/api/v1/alerts	Create alert
+GET	/api/v1/alerts/:id	Get alert
+PATCH	/api/v1/alerts/:id	Update alert
+DELETE	/api/v1/alerts/:id	Delete alert
+POST	/api/v1/alerts/:id/read	Mark alert read
+GET	/api/v1/watchlists	List watchlists
+POST	/api/v1/watchlists	Create watchlist
+GET	/api/v1/watchlists/:id/events	Watchlist events
+16. Uploads
+
+Method	Endpoint	Purpose
+POST	/api/v1/uploads	Upload document
+GET	/api/v1/uploads	List uploads
+GET	/api/v1/uploads/:id	Get upload
+DELETE	/api/v1/uploads/:id	Delete upload
+POST	/api/v1/uploads/:id/process	Process upload
+GET	/api/v1/uploads/:id/status	Upload status
+GET	/api/v1/uploads/:id/chunks	Upload chunks
+17. Analytics
+
+Method	Endpoint	Purpose
+GET	/api/v1/analytics/dashboard	Dashboard metrics
+GET	/api/v1/analytics/trends/summary	Trend summary
+GET	/api/v1/analytics/trends/timeseries	Trend time series
+GET	/api/v1/analytics/competitors/summary	Competitor summary
+GET	/api/v1/analytics/market/size	Market size
+GET	/api/v1/analytics/risks/summary	Risk summary
+GET	/api/v1/analytics/reports/usage	Report usage
+GET	/api/v1/analytics/data-quality	Data quality
+18. Admin
+
+Method	Endpoint	Purpose
+POST	/api/v1/admin/scrape/:industryId	Refresh industry data
+POST	/api/v1/admin/ingestion/reindex	Reindex data
+POST	/api/v1/admin/ingestion/backfill	Backfill data
+GET	/api/v1/admin/analytics/tokens	Token usage
+GET	/api/v1/admin/analytics/jobs	Worker/queue metrics
+GET	/api/v1/admin/analytics/sources	Source monitoring
+PATCH	/api/v1/admin/seed-urls	Update seed URLs
+GET	/api/v1/admin/seed-urls	List seed URLs
+GET	/api/v1/admin/prompts	List prompts
+PATCH	/api/v1/admin/prompts/:promptId	Update prompt
+GET	/api/v1/admin/users	List users
+GET	/api/v1/admin/reports/:reportId/audit	Report audit
+19. Webhooks
+
+Method	Endpoint	Purpose
+POST	/api/v1/webhooks/research-complete	Research completion webhook
+POST	/api/v1/webhooks/report-complete	Report completion webhook
+20. Integrations
+Method	Endpoint	Purpose
+POST	/api/v1/integrations/notion/export	Export to Notion
+POST	/api/v1/integrations/slack/notify	Slack notification
+POST	/api/v1/integrations/email/send-report	Email report
