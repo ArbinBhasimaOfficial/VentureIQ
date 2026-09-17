@@ -1,4 +1,8 @@
 import { db } from "../../prisma/db.js";
+import {
+  getOrSetCache,
+  invalidateCache,
+} from "../../utils/cache.js";
 
 import type {
   CreateDatasetInput,
@@ -12,7 +16,7 @@ const Dataset =
 const MarketReport =
   db.orm.public!.MarketReport!;
 
-// CREATE
+
 export async function createDataset(
   input: CreateDatasetInput,
 ) {
@@ -27,7 +31,7 @@ export async function createDataset(
     throw new Error("REPORT_NOT_FOUND");
   }
 
-  return Dataset.create({
+  const dataset = await Dataset.create({
     name: input.name.trim(),
     description:
       input.description?.trim() || null,
@@ -36,9 +40,19 @@ export async function createDataset(
       input.source?.trim() || null,
     reportId: input.reportId,
   });
+
+  // A new dataset changes every dataset list.
+  await invalidateCache("datasets:list:*");
+
+  // It can also affect report-related cached data.
+  await invalidateCache(
+    `reports:detail:${input.reportId}:*`,
+  );
+
+  return dataset;
 }
 
-// LIST
+
 export async function listDatasets(
   query: ListDatasetsQuery,
 ) {
@@ -48,68 +62,96 @@ export async function listDatasets(
     reportId,
   } = query;
 
-  const skip = (page - 1) * limit;
+  const cacheKey =
+    `datasets:list:${page}:${limit}:${reportId || "all"}`;
 
-  let datasetsQuery = Dataset;
+  return getOrSetCache(
+    cacheKey,
+    60,
+    async () => {
+      const skip =
+        (page - 1) * limit;
 
-  if (reportId) {
-    datasetsQuery = datasetsQuery.where({
-      reportId,
-    });
-  }
+      let datasetsQuery = Dataset;
 
-  const datasets = await datasetsQuery
-    .orderBy((dataset) =>
-      dataset.createdAt.desc(),
-    )
-    .offset(skip)
-    .limit(limit)
-    .all();
+      if (reportId) {
+        datasetsQuery =
+          datasetsQuery.where({
+            reportId,
+          });
+      }
 
-  return {
-    datasets,
+      const datasets =
+        await datasetsQuery
+          .orderBy((dataset) =>
+            dataset.createdAt.desc(),
+          )
+          .offset(skip)
+          .limit(limit)
+          .all();
 
-    pagination: {
-      page,
-      limit,
-      count: datasets.length,
+      return {
+        datasets,
+
+        pagination: {
+          page,
+          limit,
+          count: datasets.length,
+        },
+      };
     },
-  };
+  );
 }
 
-// GET ONE
 export async function getDatasetById(
   id: string,
 ) {
-  const dataset = await Dataset
-    .where({
-      id,
-    })
-    .all()
-    .first();
+  const cacheKey =
+    `datasets:detail:${id}`;
 
-  if (!dataset) {
-    throw new Error("DATASET_NOT_FOUND");
-  }
+  return getOrSetCache(
+    cacheKey,
+    300,
+    async () => {
+      const dataset =
+        await Dataset
+          .where({
+            id,
+          })
+          .all()
+          .first();
 
-  return dataset;
+      if (!dataset) {
+        throw new Error(
+          "DATASET_NOT_FOUND",
+        );
+      }
+
+      return dataset;
+    },
+  );
 }
 
-// UPDATE
 export async function updateDataset(
   id: string,
   input: UpdateDatasetInput,
 ) {
-  const dataset = await Dataset
-    .where({
-      id,
-    })
-    .all()
-    .first();
+  const dataset =
+    await Dataset
+      .where({
+        id,
+      })
+      .all()
+      .first();
 
   if (!dataset) {
-    throw new Error("DATASET_NOT_FOUND");
+    throw new Error(
+      "DATASET_NOT_FOUND",
+    );
   }
+
+  const oldReportId =
+    dataset.reportId;
 
   const updateData: {
     name?: string;
@@ -126,30 +168,39 @@ export async function updateDataset(
       input.name.trim();
   }
 
-  if (input.description !== undefined) {
+  if (
+    input.description !==
+    undefined
+  ) {
     updateData.description =
-      input.description.trim() || null;
+      input.description.trim() ||
+      null;
   }
 
   if (input.data !== undefined) {
-    updateData.data = input.data;
+    updateData.data =
+      input.data;
   }
 
   if (input.source !== undefined) {
     updateData.source =
-      input.source.trim() || null;
+      input.source.trim() ||
+      null;
   }
 
   if (input.reportId !== undefined) {
-    const report = await MarketReport
-      .where({
-        id: input.reportId,
-      })
-      .all()
-      .first();
+    const report =
+      await MarketReport
+        .where({
+          id: input.reportId,
+        })
+        .all()
+        .first();
 
     if (!report) {
-      throw new Error("REPORT_NOT_FOUND");
+      throw new Error(
+        "REPORT_NOT_FOUND",
+      );
     }
 
     updateData.reportId =
@@ -157,34 +208,73 @@ export async function updateDataset(
   }
 
   if (
-    Object.keys(updateData).length === 0
+    Object.keys(updateData)
+      .length === 0
   ) {
     return dataset;
   }
 
-  return Dataset
-    .where({ id })
-    .update(updateData as any);
+  const updated =
+    await Dataset
+      .where({ id })
+      .update(updateData as any);
+
+  await invalidateCache(
+    `datasets:detail:${id}`,
+  );
+
+  await invalidateCache(
+    "datasets:list:*",
+  );
+
+  await invalidateCache(
+    `reports:detail:${oldReportId}:*`,
+  );
+
+  if (
+    input.reportId !== undefined &&
+    input.reportId !== oldReportId
+  ) {
+    await invalidateCache(
+      `reports:detail:${input.reportId}:*`,
+    );
+  }
+
+  return updated;
 }
 
-// DELETE
 export async function deleteDataset(
   id: string,
 ) {
-  const dataset = await Dataset
-    .where({
-      id,
-    })
-    .all()
-    .first();
+  const dataset =
+    await Dataset
+      .where({
+        id,
+      })
+      .all()
+      .first();
 
   if (!dataset) {
-    throw new Error("DATASET_NOT_FOUND");
+    throw new Error(
+      "DATASET_NOT_FOUND",
+    );
   }
 
   await Dataset
     .where({ id })
     .delete();
+
+  await invalidateCache(
+    `datasets:detail:${id}`,
+  );
+
+  await invalidateCache(
+    "datasets:list:*",
+  );
+
+  await invalidateCache(
+    `reports:detail:${dataset.reportId}:*`,
+  );
 
   return dataset;
 }

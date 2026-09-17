@@ -1,4 +1,15 @@
+
 import { db } from "../../prisma/db.js";
+
+import {
+  getOrSetCache,
+  invalidateCache,
+} from "../../utils/cache.js";
+
+import {
+  indexDocument,
+  removeDocumentIndex,
+} from "../search/search.service.js";
 
 import type {
   CreateReportInput,
@@ -28,12 +39,13 @@ export async function createReport(
   input: CreateReportInput,
   authorId: string,
 ) {
-  const category = await db.orm.public!.MarketCategory!
-    .where({
-      id: input.categoryId,
-    })
-    .all()
-    .first();
+  const category =
+    await db.orm.public!.MarketCategory!
+      .where({
+        id: input.categoryId,
+      })
+      .all()
+      .first();
 
   if (!category) {
     throw new Error("CATEGORY_NOT_FOUND");
@@ -46,28 +58,51 @@ export async function createReport(
     throw new Error("INVALID_REPORT_TITLE");
   }
 
-  const existing = await MarketReport
-    .where({
-      slug,
-    })
-    .all()
-    .first();
+  const existing =
+    await MarketReport
+      .where({
+        slug,
+      })
+      .all()
+      .first();
 
   if (existing) {
     throw new Error("REPORT_SLUG_EXISTS");
   }
 
-  return MarketReport.create({
-    title,
-    slug,
-    summary: input.summary.trim(),
-    content: input.content.trim(),
-    industry: normalizeText(input.industry),
-    region: input.region?.trim() || null,
-    categoryId: input.categoryId,
-    authorId,
-    status: input.status ?? "DRAFT",
-  });
+  const report =
+    await MarketReport.create({
+      title,
+      slug,
+      summary: input.summary.trim(),
+      content: input.content.trim(),
+      industry: normalizeText(
+        input.industry,
+      ),
+      region:
+        input.region?.trim() || null,
+      categoryId: input.categoryId,
+      authorId,
+      status: input.status ?? "DRAFT",
+    });
+
+  /*
+   * Add the new report to the inverted index.
+   */
+  await indexDocument(
+    report.id,
+    "REPORT",
+    `${report.title} ${report.summary} ${report.content}`,
+  );
+
+  /*
+   * New report changes every report listing.
+   */
+  await invalidateCache(
+    "reports:list:*",
+  );
+
+  return report;
 }
 
 // LIST
@@ -82,43 +117,76 @@ export async function listReports(
     industry,
   } = query;
 
-  const skip = (page - 1) * limit;
+  /*
+   * publicOnly is part of the key because:
+   *
+   * /reports for authenticated ADMIN
+   *
+   * and
+   *
+   * /reports for public users
+   *
+   * must never share the same cached result.
+   */
+  const cacheKey =
+    `reports:list:${publicOnly}:${page}:${limit}:${categoryId || "all"}:${industry || "all"}`;
 
-  let reportsQuery = MarketReport;
+  return getOrSetCache(
+    cacheKey,
+    60,
+    async () => {
+      const skip =
+        (page - 1) * limit;
 
-  if (publicOnly) {
-    reportsQuery = reportsQuery.where({
-      status: "PUBLISHED",
-    });
-  }
+      let reportsQuery =
+        MarketReport;
 
-  if (categoryId) {
-    reportsQuery = reportsQuery.where({
-      categoryId,
-    });
-  }
+      if (publicOnly) {
+        reportsQuery =
+          reportsQuery.where({
+            status: "PUBLISHED",
+          });
+      }
 
-  if (industry) {
-    reportsQuery = reportsQuery.where({
-      industry,
-    });
-  }
+      if (categoryId) {
+        reportsQuery =
+          reportsQuery.where({
+            categoryId,
+          });
+      }
 
-    const reports = await reportsQuery
-      .orderBy((report) => report.createdAt.desc())
-      .limit(skip + limit)
-    .all();
+      if (industry) {
+        reportsQuery =
+          reportsQuery.where({
+            industry,
+          });
+      }
 
-  const paginatedReports = reports.slice(skip, skip + limit);
+      const reports =
+        await reportsQuery
+          .orderBy((report) =>
+            report.createdAt.desc(),
+          )
+          .limit(skip + limit)
+          .all();
 
-  return {
-    reports: paginatedReports,
-    pagination: {
-      page,
-      limit,
-      count: paginatedReports.length,
+      const paginatedReports =
+        reports.slice(
+          skip,
+          skip + limit,
+        );
+
+      return {
+        reports: paginatedReports,
+        pagination: {
+          page,
+          limit,
+          count:
+            paginatedReports.length,
+        },
+      };
     },
-  };
+  );
 }
 
 // GET ONE
@@ -126,25 +194,44 @@ export async function getReportById(
   id: string,
   publicOnly: boolean,
 ) {
-  const report = await MarketReport
-    .where({
-      id,
-    })
-    .all()
-    .first();
+  /*
+   * publicOnly is included in the key because
+   * an ADMIN may access DRAFT/ARCHIVED reports,
+   * while public users may only access PUBLISHED reports.
+   */
+  const cacheKey =
+    `reports:detail:${id}:${publicOnly}`;
 
-  if (!report) {
-    throw new Error("REPORT_NOT_FOUND");
-  }
+  return getOrSetCache(
+    cacheKey,
+    300,
+    async () => {
+      const report =
+        await MarketReport
+          .where({
+            id,
+          })
+          .all()
+          .first();
 
-  if (
-    publicOnly &&
-    report.status !== "PUBLISHED"
-  ) {
-    throw new Error("REPORT_NOT_FOUND");
-  }
+      if (!report) {
+        throw new Error(
+          "REPORT_NOT_FOUND",
+        );
+      }
 
-  return report;
+      if (
+        publicOnly &&
+        report.status !== "PUBLISHED"
+      ) {
+        throw new Error(
+          "REPORT_NOT_FOUND",
+        );
+      }
+
+      return report;
+    },
+  );
 }
 
 // UPDATE
@@ -152,15 +239,18 @@ export async function updateReport(
   id: string,
   input: UpdateReportInput,
 ) {
-  const report = await MarketReport
-    .where({
-      id,
-    })
-    .all()
-    .first();
+  const report =
+    await MarketReport
+      .where({
+        id,
+      })
+      .all()
+      .first();
 
   if (!report) {
-    throw new Error("REPORT_NOT_FOUND");
+    throw new Error(
+      "REPORT_NOT_FOUND",
+    );
   }
 
   const updateData: {
@@ -178,25 +268,33 @@ export async function updateReport(
   } = {};
 
   if (input.title !== undefined) {
-    const title = normalizeText(input.title);
-    const slug = slugify(title);
+    const title =
+      normalizeText(input.title);
+
+    const slug =
+      slugify(title);
 
     if (!slug) {
-      throw new Error("INVALID_REPORT_TITLE");
+      throw new Error(
+        "INVALID_REPORT_TITLE",
+      );
     }
 
-    const existingSlug = await MarketReport
-      .where({
-        slug,
-      })
-      .all()
-      .first();
+    const existingSlug =
+      await MarketReport
+        .where({
+          slug,
+        })
+        .all()
+        .first();
 
     if (
       existingSlug &&
       existingSlug.id !== id
     ) {
-      throw new Error("REPORT_SLUG_EXISTS");
+      throw new Error(
+        "REPORT_SLUG_EXISTS",
+      );
     }
 
     updateData.title = title;
@@ -215,7 +313,9 @@ export async function updateReport(
 
   if (input.industry !== undefined) {
     updateData.industry =
-      normalizeText(input.industry);
+      normalizeText(
+        input.industry,
+      );
   }
 
   if (input.region !== undefined) {
@@ -225,7 +325,8 @@ export async function updateReport(
 
   if (input.categoryId !== undefined) {
     const category =
-      await db.orm.public!.MarketCategory!
+      await db.orm.public!
+        .MarketCategory!
         .where({
           id: input.categoryId,
         })
@@ -233,7 +334,9 @@ export async function updateReport(
         .first();
 
     if (!category) {
-      throw new Error("CATEGORY_NOT_FOUND");
+      throw new Error(
+        "CATEGORY_NOT_FOUND",
+      );
     }
 
     updateData.categoryId =
@@ -241,33 +344,73 @@ export async function updateReport(
   }
 
   if (input.status !== undefined) {
-    updateData.status = input.status;
+    updateData.status =
+      input.status;
   }
 
   if (
-    Object.keys(updateData).length === 0
+    Object.keys(updateData)
+      .length === 0
   ) {
     return report;
   }
 
-  return MarketReport
-    .where({ id })
-    .update(updateData);
+  const updatedReport =
+    await MarketReport
+      .where({ id })
+      .update(updateData);
+
+  if (!updatedReport) {
+    throw new Error(
+      "REPORT_NOT_FOUND",
+    );
+  }
+
+  /*
+   * Rebuild the inverted index using
+   * the updated report content.
+   */
+  await indexDocument(
+    updatedReport.id,
+    "REPORT",
+    `${updatedReport.title} ${updatedReport.summary} ${updatedReport.content}`,
+  );
+
+  /*
+   * Any update can affect:
+   *
+   * 1. Public report lists
+   * 2. Admin report lists
+   * 3. Public report detail
+   * 4. Admin report detail
+   */
+  await invalidateCache(
+    "reports:list:*",
+  );
+
+  await invalidateCache(
+    `reports:detail:${id}:*`,
+  );
+
+  return updatedReport;
 }
 
 // DELETE
 export async function deleteReport(
   id: string,
 ) {
-  const report = await MarketReport
-    .where({
-      id,
-    })
-    .all()
-    .first();
+  const report =
+    await MarketReport
+      .where({
+        id,
+      })
+      .all()
+      .first();
 
   if (!report) {
-    throw new Error("REPORT_NOT_FOUND");
+    throw new Error(
+      "REPORT_NOT_FOUND",
+    );
   }
 
   await MarketReport
@@ -275,6 +418,27 @@ export async function deleteReport(
       id,
     })
     .delete();
+
+  /*
+   * Remove the report from the
+   * inverted index.
+   */
+  await removeDocumentIndex(
+    id,
+    "REPORT",
+  );
+
+  /*
+   * Delete affects lists and
+   * this report's detail cache.
+   */
+  await invalidateCache(
+    "reports:list:*",
+  );
+
+  await invalidateCache(
+    `reports:detail:${id}:*`,
+  );
 
   return report;
 }

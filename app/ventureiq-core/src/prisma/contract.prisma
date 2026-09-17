@@ -88,3 +88,30 @@ model Dataset {
 
   @@map("datasets")
 }
+
+
+model SearchIndexTerm {
+  id            String   @id @default(uuid())
+  term          String
+  documentId    String
+  documentType  String   @default("REPORT")
+  termFrequency Int
+  createdAt     DateTime @default(now())
+
+  @@unique([term, documentId, documentType])
+  @@index([term])
+  @@index([documentId, documentType])
+
+  @@map("search_index_terms")
+}
+
+
+model SearchDocumentStats {
+  documentId   String
+  documentType String   @default("REPORT")
+  length       Int
+
+  @@id([documentId, documentType])
+
+  @@map("search_document_stats")
+}

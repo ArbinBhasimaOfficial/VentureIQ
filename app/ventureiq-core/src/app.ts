@@ -4,6 +4,7 @@ import authRouter from "./modules/auth/auth.routes.js";
 import categoryRoutes from "./modules/category/category.routes.js";
 import reportRoutes from "./modules/report/report.routes.js";
 import datasetRoutes from "./modules/dataset/dataset.routes.js";
+import searchRoutes from "./modules/search/search.routes.js";
 const app = express();
 
 app.use(express.json());
@@ -30,6 +31,11 @@ app.use(
 app.use(
   "/api/v1/datasets",
   datasetRoutes,
+);
+
+app.use(
+  "/api/search",
+  searchRoutes,
 );
 
 export default app;

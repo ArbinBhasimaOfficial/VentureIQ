@@ -16,6 +16,14 @@
       "model": "MarketReport",
       "namespace": "public"
     },
+    "search_document_stats": {
+      "model": "SearchDocumentStats",
+      "namespace": "public"
+    },
+    "search_index_terms": {
+      "model": "SearchIndexTerm",
+      "namespace": "public"
+    },
     "users": {
       "model": "User",
       "namespace": "public"
@@ -435,6 +443,118 @@
               },
               "namespaceId": "public",
               "table": "market_reports"
+            }
+          },
+          "SearchDocumentStats": {
+            "fields": {
+              "documentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "length": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "documentId": {
+                  "column": "documentId"
+                },
+                "documentType": {
+                  "column": "documentType"
+                },
+                "length": {
+                  "column": "length"
+                }
+              },
+              "namespaceId": "public",
+              "table": "search_document_stats"
+            }
+          },
+          "SearchIndexTerm": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "documentType": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "term": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "termFrequency": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "documentId": {
+                  "column": "documentId"
+                },
+                "documentType": {
+                  "column": "documentType"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "term": {
+                  "column": "term"
+                },
+                "termFrequency": {
+                  "column": "termFrequency"
+                }
+              },
+              "namespaceId": "public",
+              "table": "search_index_terms"
             }
           },
           "User": {
@@ -858,6 +978,114 @@
                 }
               ]
             },
+            "search_document_stats": {
+              "columns": {
+                "documentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "documentType": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "REPORT"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "length": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [],
+              "primaryKey": {
+                "columns": [
+                  "documentId",
+                  "documentType"
+                ]
+              },
+              "uniques": []
+            },
+            "search_index_terms": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "documentId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "documentType": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "REPORT"
+                  },
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "term": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "termFrequency": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "documentId",
+                    "documentType"
+                  ],
+                  "name": "search_index_terms_documentId_documentType_idx_08d27775",
+                  "prefix": "search_index_terms_documentId_documentType_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "term"
+                  ],
+                  "name": "search_index_terms_term_idx_68d18849",
+                  "prefix": "search_index_terms_term_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "term",
+                    "documentId",
+                    "documentType"
+                  ]
+                }
+              ]
+            },
             "users": {
               "checks": [
                 {
@@ -959,10 +1187,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "0dd998f17309c774ce0c7e7695225adaa2c51978e9003db510cab3e942a51fa1"
+    "storageHash": "f14c2fa84e619a127bf11bdc7e6df5691466aab37698f2c0ed563aafb04ca3c4"
   },
   "execution": {
-    "executionHash": "0878251465cd13fada51665114c71513e917cf66b9cfab5bf8e39a57cc8e1810",
+    "executionHash": "eb62ca5b6715e2d1083eb0f638ba167333dae5acf17c831d449316887efcbe8e",
     "mutations": {
       "defaults": [
         {
@@ -996,6 +1224,17 @@
             "column": "id",
             "namespace": "public",
             "table": "market_reports"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "search_index_terms"
           }
         },
         {
