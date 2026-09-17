@@ -3,11 +3,11 @@ import { Temporal } from "@js-temporal/polyfill";
 (globalThis as any).Temporal = Temporal;
 
 const { db } = await import("./db.js");
-
+const User = db.orm.public!.User!;
 async function main() {
   const now = Temporal.Now.instant();
 
-  const user = await db.orm.public.User.create({
+  const user = await User.create({
     id: crypto.randomUUID(),
     email: "create-test@example.com",
     password: "test-password",

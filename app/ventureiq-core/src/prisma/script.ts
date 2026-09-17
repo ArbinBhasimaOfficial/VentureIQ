@@ -1,4 +1,4 @@
-import {db} from './db';
+import { db } from "./db.js";
 
 async function main() {
     const plan = await db.sql.public.users

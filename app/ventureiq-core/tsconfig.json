@@ -1,29 +1,40 @@
-
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "preserve",
-    "moduleResolution": "bundler",
-    "lib": ["ESNext"],
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
     "rootDir": "./src",
     "outDir": "./dist",
+
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+
     "resolveJsonModule": true,
     "moduleDetection": "force",
+
     "declaration": false,
     "sourceMap": true,
-    "incremental": true,
-  },
-  "ts-node": {
-    "esm": true
+    "incremental": false
   },
 
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/app.ts",
+    "src/server.ts",
+    "src/modules/**/*.ts",
+    "src/prisma/db.ts"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/prisma/*-test.ts",
+    "src/prisma/type-test.ts"
+  ]
 }

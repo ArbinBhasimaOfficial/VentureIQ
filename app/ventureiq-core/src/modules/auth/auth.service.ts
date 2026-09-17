@@ -1,5 +1,4 @@
-
-import { Temporal as PolyfillTemporal } from "@js-temporal/polyfill";
+import { Temporal as PolyfillTemporal, Temporal } from "@js-temporal/polyfill";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -11,8 +10,10 @@ import type { RegisterInput, LoginInput } from "./auth.schema.js";
 
 const SALT_ROUNDS = 10;
 
+const User = db.orm.public!.User!;
+
 export async function registerUser(input: RegisterInput) {
-  const existingUser = await db.orm.public.User
+  const existingUser = await User
     .where({ email: input.email })
     .all()
     .first();
@@ -29,7 +30,7 @@ export async function registerUser(input: RegisterInput) {
   const now =
     PolyfillTemporal.Now.instant() as unknown as Temporal.Instant;
 
-  const user = await db.orm.public.User.create({
+  const user = await User.create({
     name: input.name,
     email: input.email,
     password: hashedPassword,
@@ -52,7 +53,7 @@ export async function registerUser(input: RegisterInput) {
 }
 
 export async function loginUser(input: LoginInput) {
-  const user = await db.orm.public.User
+  const user = await User
     .where({ email: input.email })
     .all()
     .first();
