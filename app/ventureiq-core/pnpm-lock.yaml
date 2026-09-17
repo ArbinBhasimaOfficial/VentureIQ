@@ -14,6 +14,9 @@ importers:
       '@prisma/orm-postgres':
         specifier: 8.0.0-rc.11
         version: 8.0.0-rc.11(@prisma/cli-engine@0.4.0(@prisma/management-api-sdk@1.69.0)(magicast@0.5.5))(magicast@0.5.5)(typanion@3.14.0)(typescript@7.0.2)
+      '@types/node':
+        specifier: ^22.20.3
+        version: 22.20.3
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -42,9 +45,6 @@ importers:
       '@types/jsonwebtoken':
         specifier: ^9.0.10
         version: 9.0.10
-      '@types/node':
-        specifier: ^22.20.3
-        version: 22.20.3
       nodemon:
         specifier: ^3.1.14
         version: 3.1.14

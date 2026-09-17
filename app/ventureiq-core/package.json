@@ -19,6 +19,7 @@
   "dependencies": {
     "@js-temporal/polyfill": "^0.5.1",
     "@prisma/orm-postgres": "8.0.0-rc.11",
+    "@types/node": "^22.20.3",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
@@ -30,7 +31,6 @@
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^22.20.3",
     "nodemon": "^3.1.14",
     "prisma": "8.0.0-rc.15",
     "tsx": "^4.23.13",
