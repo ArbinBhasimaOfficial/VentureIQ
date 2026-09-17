@@ -19,9 +19,6 @@
     "declaration": false,
     "sourceMap": true,
     "incremental": true,
-    "types": [
-      "node"
-    ]
   },
   "ts-node": {
     "esm": true
