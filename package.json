@@ -1,0 +1,24 @@
+{
+  "name": "ventureiq",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VentureIQ repository tooling",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1"
+  },
+  "lint-staged": {
+    "app/ventureiq-surface/**/*.{js,jsx,ts,tsx}": [
+      "pnpm --dir app/ventureiq-surface exec eslint --fix",
+      "pnpm --dir app/ventureiq-surface exec prettier --write"
+    ],
+    "app/ventureiq-surface/**/*.{json,md,mdx,css}": [
+      "pnpm --dir app/ventureiq-surface exec prettier --write"
+    ]
+  }
+}
+

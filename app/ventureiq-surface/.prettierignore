@@ -1,0 +1,8 @@
+.next/
+out/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+node_modules/

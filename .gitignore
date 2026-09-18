@@ -1,59 +1,78 @@
-node_modules
-dist
-.env
-node_modules/
-dist/
+**/node_modules/
+.pnpm-store/
+
+
 .env
 .env.*
 !.env.example
-.agents
-.claude
-.cursor
-.devin
-.vercel
 
 
-# Dependencies
-node_modules/
-.pnpm-store/
+**/.next/
+**/out/
 
-# Build output
-dist/
-build/
 
-# Environment variables
-.env
-.env.local
-.env.*.local
 
-# Uploaded files (never commit user-uploaded content)
-uploads/*
-!uploads/.gitkeep
+**/dist/
+**/build/
 
-# Prisma
-prisma/migrations/dev.db
 
-# Logs
-*.log
+
+**/*.tsbuildinfo
+
+
+
+**/coverage/
+**/playwright-report/
+**/test-results/
+
+
+**/*.log
 npm-debug.log*
 pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Editor/IDE
+
+
+**/uploads/*
+!**/uploads/.gitkeep
+
+
+
+**/prisma/migrations/dev.db
+**/*.db
+**/*.db-journal
+
+
+
+.vercel/
+**/.vercel/
+
+
+
 .vscode/*
 !.vscode/extensions.json
+
 .idea/
+.cursor/
+.claude/
+.agents/
+.devin/
+
 *.swp
 *.swo
 
-# OS files
+
 .DS_Store
 Thumbs.db
 
-# TypeScript
-*.tsbuildinfo
 
-# Docker
-docker-compose.override.yml
 
-# Testing/coverage (once we add tests)
-coverage/
+**/docker-compose.override.yml
+
+
+
+*.tmp
+*.temp
+*.bak
+*~
