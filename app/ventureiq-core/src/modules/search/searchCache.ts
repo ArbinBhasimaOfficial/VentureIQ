@@ -1,7 +1,10 @@
 import { LRUCache } from "../../utils/lrucache.js";
 
+export type SearchResultType = "REPORT" | "TREND" | "RESEARCH";
+
 export interface CachedSearchResult {
-  report: Record<string, unknown>;
+  resultType: SearchResultType;
+  document: Record<string, unknown>;
   relevanceScore: number;
 }
 
