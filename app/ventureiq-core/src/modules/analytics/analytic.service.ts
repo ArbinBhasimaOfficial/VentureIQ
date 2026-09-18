@@ -69,7 +69,15 @@ export async function getPublishingTrend(months: number = 6) {
       const monthBuckets = new Map<string, number>();
 
       for (const report of reports) {
-        const createdAt = new Date(report.createdAt as unknown as string);
+        const createdAtValue = report.createdAt as unknown;
+        const createdAt =
+          createdAtValue instanceof Date
+            ? createdAtValue
+            : new Date(String(createdAtValue));
+
+        if (Number.isNaN(createdAt.getTime())) {
+          continue;
+        }
 
         if (createdAt < startDate) {
           continue;

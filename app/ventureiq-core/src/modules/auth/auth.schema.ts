@@ -22,6 +22,8 @@ export const loginSchema = z.object({
   password: z.string().min(1, {
     error: "Password is required",
   }),
+
+  rememberMe: z.boolean().default(false),
 });
 
 export const updateProfileSchema = z.object({

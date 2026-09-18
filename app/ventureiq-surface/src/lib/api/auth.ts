@@ -3,6 +3,7 @@ import apiClient from "./client";
 export type LoginInput = {
   email: string;
   password: string;
+  rememberMe: boolean;
 };
 
 export type RegisterInput = {
@@ -23,7 +24,7 @@ export type AuthResponse = {
   message: string;
   data: {
     user: AuthUser;
-    token: string;
+    token?: string;
   };
 };
 

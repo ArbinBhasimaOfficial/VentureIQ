@@ -1,0 +1,36 @@
+{
+  "title": "AI whitespace opportunities",
+  "updated": "2026-09-18",
+  "opportunities": [
+    {
+      "segment": "Small business operations",
+      "score": 87,
+      "readiness": "High",
+      "need": "Simple automation with human oversight"
+    },
+    {
+      "segment": "Personal finance",
+      "score": 81,
+      "readiness": "Medium",
+      "need": "Clear explanations and trusted recommendations"
+    },
+    {
+      "segment": "Learning and skills",
+      "score": 78,
+      "readiness": "High",
+      "need": "Adaptive coaching tied to real outcomes"
+    },
+    {
+      "segment": "Care coordination",
+      "score": 74,
+      "readiness": "Medium",
+      "need": "Shared context across people and providers"
+    },
+    {
+      "segment": "Sustainable shopping",
+      "score": 69,
+      "readiness": "Early",
+      "need": "Proof that turns intent into action"
+    }
+  ]
+}

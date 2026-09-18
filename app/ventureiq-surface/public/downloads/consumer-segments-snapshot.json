@@ -1,0 +1,36 @@
+{
+  "title": "Consumer segments snapshot",
+  "updated": "2026-09-18",
+  "segments": [
+    {
+      "name": "Value optimizers",
+      "share_percent": 28,
+      "priority": "Price clarity",
+      "behavior": "Compare before committing"
+    },
+    {
+      "name": "Purposeful adopters",
+      "share_percent": 19,
+      "priority": "Proof of impact",
+      "behavior": "Research values before purchase"
+    },
+    {
+      "name": "Convenience seekers",
+      "share_percent": 24,
+      "priority": "Less friction",
+      "behavior": "Choose fast, familiar experiences"
+    },
+    {
+      "name": "Experience collectors",
+      "share_percent": 16,
+      "priority": "Novelty and access",
+      "behavior": "Share memorable discoveries"
+    },
+    {
+      "name": "Community loyalists",
+      "share_percent": 13,
+      "priority": "Belonging",
+      "behavior": "Return to trusted networks"
+    }
+  ]
+}

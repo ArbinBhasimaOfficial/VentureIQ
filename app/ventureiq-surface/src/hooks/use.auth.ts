@@ -10,8 +10,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: login,
-    onSuccess: (response) => {
-      setAuth(response.data.user, response.data.token);
+    onSuccess: (response, variables) => {
+      setAuth(response.data.user, response.data.token, variables.rememberMe);
     },
   });
 }
@@ -22,7 +22,7 @@ export function useRegister() {
   return useMutation({
     mutationFn: register,
     onSuccess: (response) => {
-      setAuth(response.data.user, response.data.token);
+      setAuth(response.data.user, response.data.token, false);
     },
   });
 }

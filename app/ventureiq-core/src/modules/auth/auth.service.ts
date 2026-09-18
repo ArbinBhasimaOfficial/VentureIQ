@@ -69,7 +69,7 @@ export async function loginUser(input: LoginInput) {
     throw new AppError("Invalid email or password", 401);
   }
 
-  const token = generateToken(user.id, user.role);
+  const token = generateToken(user.id, user.role, input.rememberMe);
 
   return {
     user: {
@@ -164,7 +164,7 @@ export async function getCurrentUser(userId: string) {
   };
 }
 
-function generateToken(userId: string, role: string) {
+function generateToken(userId: string, role: string, rememberMe = true) {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
@@ -178,7 +178,9 @@ function generateToken(userId: string, role: string) {
     },
     secret,
     {
-      expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+      expiresIn: rememberMe
+        ? process.env.JWT_EXPIRES_IN || "7d"
+        : process.env.JWT_SESSION_EXPIRES_IN || "1h",
     } as jwt.SignOptions,
   );
 }

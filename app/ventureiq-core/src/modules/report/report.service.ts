@@ -104,7 +104,7 @@ export async function listReports(
    * must never share the same cached result.
    */
   const cacheKey =
-    `reports:list:${publicOnly}:${page}:${limit}:` +
+    `reports:list:v2:${publicOnly}:${page}:${limit}:` +
     `${categoryId || "all"}:${industry || "all"}`;
 
   return getOrSetCache(cacheKey, 60, async () => {
@@ -132,9 +132,9 @@ export async function listReports(
 
     const reports = await reportsQuery
       .orderBy((report) => report.createdAt.desc())
-      .limit(skip + limit)
       .all();
 
+    const total = reports.length;
     const paginatedReports = reports.slice(skip, skip + limit);
 
     return {
@@ -143,6 +143,8 @@ export async function listReports(
         page,
         limit,
         count: paginatedReports.length,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     };
   });

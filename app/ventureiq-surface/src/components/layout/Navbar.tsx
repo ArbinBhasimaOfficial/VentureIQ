@@ -1,17 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-
 import Link from "next/link";
-
-import { Check, ChevronDown, Globe, Menu, Moon, Sun, X } from "lucide-react";
-
+import { Check, ChevronDown, Globe, Menu, Moon, Settings, Sun, X } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
 import { useTheme } from "@/components/providers/theme-providers";
 import { useTranslation } from "@/context/languageContext";
 import { dictionary } from "@/data/dictionary";
+import { useAuthStore } from "@/store/auth.store";
+import { UserDropdown } from "@/components/layout/UserDropDown";
 
 const LANGUAGES = [
   { code: "en", label: "English" },
@@ -25,11 +24,11 @@ const LANGUAGES = [
 type LanguageCode = keyof typeof dictionary;
 
 const NAV_ITEMS = [
-  { labelKey: "platform", href: "#platform" },
-  { labelKey: "marketIntelligence", href: "#intelligence" },
-  { labelKey: "reports", href: "#reports" },
-  { labelKey: "industries", href: "#industries" },
-  { labelKey: "resources", href: "#resources" },
+  { labelKey: "platform", href: "/platform" },
+  { labelKey: "marketIntelligence", href: "/market-intelligence" },
+  { labelKey: "reports", href: "/reports" },
+  { labelKey: "industries", href: "/industries" },
+  { labelKey: "resources", href: "/resources" },
 ] as const;
 
 export default function Navbar() {
@@ -38,6 +37,7 @@ export default function Navbar() {
 
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -46,6 +46,7 @@ export default function Navbar() {
 
   const { currentLang, setLanguage, t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
+  const user = useAuthStore((state) => state.user);
 
   const isDark = theme === "dark";
 
@@ -63,12 +64,11 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
   };
 
-  /*
-   * Close dropdowns when clicking outside or pressing Escape.
-   */
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsLanguageOpen(false);
       }
     };
@@ -88,9 +88,6 @@ export default function Navbar() {
     };
   }, []);
 
-  /*
-   * Navbar entrance animation.
-   */
   useGSAP(
     () => {
       if (!navRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -178,9 +175,7 @@ export default function Navbar() {
                 className="flex items-center gap-1.5 rounded-lg p-2 text-xs font-medium uppercase tracking-wider text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-cyan-400 dark:hover:bg-zinc-900"
               >
                 <Globe className="h-4 w-4 text-cyan-400" aria-hidden="true" />
-
                 <span>{currentLang}</span>
-
                 <ChevronDown
                   className={`h-3 w-3 transition-transform ${isLanguageOpen ? "rotate-180" : ""}`}
                   aria-hidden="true"
@@ -211,7 +206,6 @@ export default function Navbar() {
                         }`}
                       >
                         <span>{language.label}</span>
-
                         {isSelected && <Check className="h-3.5 w-3.5" aria-hidden="true" />}
                       </button>
                     );
@@ -220,21 +214,37 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Login */}
-            <Link
-              href="/login"
-              className="text-sm font-medium text-zinc-500 transition-colors hover:text-cyan-400"
-            >
-              {t("login")}
-            </Link>
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard/settings"
+                  aria-label="Settings"
+                  title="Settings"
+                  className="rounded-lg p-2 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-cyan-400 dark:hover:bg-zinc-900"
+                >
+                  <Settings className="h-4 w-4" aria-hidden="true" />
+                </Link>
 
-            {/* Register */}
-            <Link
-              href="/register"
-              className="text-sm font-medium text-zinc-500 transition-colors hover:text-cyan-400"
-            >
-              {t("register")}
-            </Link>
+                {/* Profile Dropdown Component */}
+                <UserDropdown isDashboard={false} />
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-zinc-500 transition-colors hover:text-cyan-400"
+                >
+                  {t("login")}
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="text-sm font-medium text-zinc-500 transition-colors hover:text-cyan-400"
+                >
+                  {t("register")}
+                </Link>
+              </>
+            )}
 
             {/* Get In Touch */}
             <Link
@@ -282,23 +292,29 @@ export default function Navbar() {
 
               <div className="my-3 h-px bg-zinc-200 dark:bg-zinc-900" />
 
-              {/* Login */}
-              <Link
-                href="/login"
-                onClick={closeMenus}
-                className="rounded-lg px-3 py-3 text-sm font-medium text-zinc-500 hover:text-cyan-400"
-              >
-                {t("login")}
-              </Link>
+              {user ? (
+                <div className="py-2">
+                  <UserDropdown isDashboard={false} />
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={closeMenus}
+                    className="rounded-lg px-3 py-3 text-sm font-medium text-zinc-500 hover:text-cyan-400"
+                  >
+                    {t("login")}
+                  </Link>
 
-              {/* Register */}
-              <Link
-                href="/register"
-                onClick={closeMenus}
-                className="rounded-lg px-3 py-3 text-sm font-medium text-zinc-500 hover:text-cyan-400"
-              >
-                {t("register")}
-              </Link>
+                  <Link
+                    href="/register"
+                    onClick={closeMenus}
+                    className="rounded-lg px-3 py-3 text-sm font-medium text-zinc-500 hover:text-cyan-400"
+                  >
+                    {t("register")}
+                  </Link>
+                </>
+              )}
 
               {/* Get In Touch */}
               <Link
@@ -322,7 +338,6 @@ export default function Navbar() {
                   ) : (
                     <Moon className="h-4 w-4" aria-hidden="true" />
                   )}
-
                   {isDark ? "Light theme" : "Dark theme"}
                 </button>
               )}

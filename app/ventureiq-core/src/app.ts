@@ -28,6 +28,8 @@ import { generalRateLimit } from "./middleware/ratelimit.middleware.js";
 
 const app = express();
 
+app.disable("etag");
+
 const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
   .split(",")
   .map((origin) => origin.trim())

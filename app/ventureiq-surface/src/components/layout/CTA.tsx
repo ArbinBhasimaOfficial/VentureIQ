@@ -17,14 +17,14 @@ export default function CTA() {
           <p className="text-slate-400 text-sm leading-relaxed">{t("ctaDescription")}</p>
         </div>
 
-        <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+        {/* <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
           <button className="bg-cyan-400 text-zinc-950 border border-transparent font-bold px-6 py-3.5 rounded-xl text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 hover:bg-zinc-950 hover:text-cyan-400 hover:border-cyan-400 active:scale-95 shadow-lg shadow-cyan-500/10 whitespace-nowrap">
             {t("ctaGetInTouch")} <ChevronDown className="w-3.5 h-3.5" />
           </button>
           <button className="bg-transparent text-white border border-slate-900 hover:bg-slate-800 font-semibold px-5 py-3 rounded text-xs transition whitespace-nowrap">
             {t("ctaOurExpert")}
           </button>
-        </div>
+        </div> */}
       </div>
     </section>
   );

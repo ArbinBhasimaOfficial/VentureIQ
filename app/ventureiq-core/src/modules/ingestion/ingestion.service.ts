@@ -49,7 +49,10 @@ async function getOrCreateSystemUser() {
   return user;
 }
 
-export async function ingestReport(input: IngestReportInput) {
+export async function ingestReport(
+  input: IngestReportInput,
+  status: "DRAFT" | "PUBLISHED" = "DRAFT",
+) {
   const category = await MarketCategory.where({
     slug: input.categorySlug,
   })
@@ -77,7 +80,8 @@ export async function ingestReport(input: IngestReportInput) {
   const systemUser = await getOrCreateSystemUser();
 
   /*
-   * Create the report as DRAFT.
+  * Imported reports default to DRAFT unless a trusted seed explicitly
+  * marks curated demo content as published.
    */
   const report = await MarketReport.create({
     title,
@@ -86,7 +90,7 @@ export async function ingestReport(input: IngestReportInput) {
     content: input.content.trim(),
     industry: normalizeText(input.industry),
     region: input.region?.trim() || null,
-    status: "DRAFT",
+    status,
     categoryId: category.id,
     authorId: systemUser.id,
   });

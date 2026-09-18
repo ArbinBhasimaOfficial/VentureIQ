@@ -13,7 +13,13 @@
     "db:sign": "prisma db sign",
     "test-user": "tsx src/prisma/user-test.ts",
     "test-script": "tsx src/prisma/script.ts",
-    "test-create": "tsx src/prisma/create-test.ts"
+    "test-create": "tsx src/prisma/create-test.ts",
+    "seed:nepal": "tsx src/prisma/seed-nepal.ts",
+    "seed:nepal-food-trend": "tsx src/prisma/seed-nepal-food-trend.ts",
+    "seed:nepal-industry-trends": "tsx src/prisma/seed-nepal-industry-trends.ts",
+    "scrape:nepal-reports": "tsx src/prisma/scrape-nepal-reports.ts",
+    "import:csv": "tsx src/prisma/import-csv-data.ts",
+    "seed:reports": "tsx src/prisma/seed-reports.ts"
   },
   "keywords": [],
   "author": "",
