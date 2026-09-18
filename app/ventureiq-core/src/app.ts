@@ -2,6 +2,7 @@ import os from "node:os";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+
 import authRouter from "./modules/auth/auth.routes.js";
 import categoryRoutes from "./modules/category/category.routes.js";
 import reportRoutes from "./modules/report/report.routes.js";
