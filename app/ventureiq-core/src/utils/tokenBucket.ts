@@ -1,75 +1,145 @@
-interface Bucket {
-  tokens: number;
-  lastRefill: number;
-}
+import redis from "../config/redis.js";
 
 export class TokenBucket {
-  private readonly buckets: Map<string, Bucket>;
   private readonly capacity: number;
   private readonly refillRate: number;
 
-  constructor(capacity: number, refillRatePerSecond: number) {
-    if (!Number.isInteger(capacity) || capacity <= 0) {
-      throw new Error("Capacity must be a positive integer");
+  constructor(
+    capacity: number,
+    refillRatePerSecond: number,
+  ) {
+    if (
+      !Number.isInteger(capacity) ||
+      capacity <= 0
+    ) {
+      throw new Error(
+        "Capacity must be a positive integer",
+      );
     }
 
-    if (!Number.isFinite(refillRatePerSecond) || refillRatePerSecond <= 0) {
-      throw new Error("Refill rate must be a positive number");
+    if (
+      !Number.isFinite(refillRatePerSecond) ||
+      refillRatePerSecond <= 0
+    ) {
+      throw new Error(
+        "Refill rate must be a positive number",
+      );
     }
 
-    this.buckets = new Map();
     this.capacity = capacity;
     this.refillRate = refillRatePerSecond;
   }
 
-  private refill(bucket: Bucket): void {
+  async consume(
+    identifier: string,
+    tokensRequested = 1,
+  ): Promise<boolean> {
+    if (
+      !Number.isFinite(tokensRequested) ||
+      tokensRequested <= 0
+    ) {
+      return false;
+    }
+
+    const key = `ratelimit:token-bucket:${identifier}`;
     const now = Date.now();
 
-    const elapsedSeconds = (now - bucket.lastRefill) / 1000;
+    const luaScript = `
+      local tokens =
+        tonumber(redis.call("HGET", KEYS[1], "tokens"))
 
-    const tokensToAdd = elapsedSeconds * this.refillRate;
+      local lastRefill =
+        tonumber(redis.call("HGET", KEYS[1], "lastRefill"))
 
-    bucket.tokens = Math.min(this.capacity, bucket.tokens + tokensToAdd);
+      local capacity = tonumber(ARGV[1])
+      local refillRate = tonumber(ARGV[2])
+      local now = tonumber(ARGV[3])
+      local requested = tonumber(ARGV[4])
 
-    bucket.lastRefill = now;
+      if tokens == nil or lastRefill == nil then
+        tokens = capacity
+        lastRefill = now
+      end
+
+      local elapsed =
+        (now - lastRefill) / 1000
+
+      local tokensToAdd =
+        elapsed * refillRate
+
+      tokens = math.min(
+        capacity,
+        tokens + tokensToAdd
+      )
+
+      local allowed = 0
+
+      if tokens >= requested then
+        tokens = tokens - requested
+        allowed = 1
+      end
+
+      redis.call(
+        "HSET",
+        KEYS[1],
+        "tokens",
+        tokens,
+        "lastRefill",
+        now
+      )
+
+      redis.call(
+        "EXPIRE",
+        KEYS[1],
+        3600
+      )
+
+      return allowed
+    `;
+
+    const result = await redis.eval(
+      luaScript,
+      1,
+      key,
+      this.capacity,
+      this.refillRate,
+      now,
+      tokensRequested,
+    );
+
+    return Number(result) === 1;
   }
 
-  consume(identifier: string, tokensRequested = 1): boolean {
-    if (!Number.isFinite(tokensRequested) || tokensRequested <= 0) {
-      return false;
-    }
+  async getRemainingTokens(
+    identifier: string,
+  ): Promise<number> {
+    const key = `ratelimit:token-bucket:${identifier}`;
 
-    let bucket = this.buckets.get(identifier);
+    const bucket = await redis.hgetall(key);
 
-    if (!bucket) {
-      bucket = {
-        tokens: this.capacity,
-        lastRefill: Date.now(),
-      };
-
-      this.buckets.set(identifier, bucket);
-    }
-
-    this.refill(bucket);
-
-    if (bucket.tokens < tokensRequested) {
-      return false;
-    }
-
-    bucket.tokens -= tokensRequested;
-
-    return true;
-  }
-
-  getRemainingTokens(identifier: string): number {
-    const bucket = this.buckets.get(identifier);
-
-    if (!bucket) {
+    if (
+      !bucket.tokens ||
+      !bucket.lastRefill
+    ) {
       return this.capacity;
     }
 
-    this.refill(bucket);
+    const tokens = Number(bucket.tokens);
+    const lastRefill = Number(bucket.lastRefill);
 
-    return Math.floor(bucket.tokens);
+    const now = Date.now();
+
+    const elapsedSeconds =
+      (now - lastRefill) / 1000;
+
+    const tokensToAdd =
+      elapsedSeconds * this.refillRate;
+
+    return Math.floor(
+      Math.min(
+        this.capacity,
+        tokens + tokensToAdd,
+      ),
+    );
   }
 }

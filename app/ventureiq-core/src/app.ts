@@ -1,7 +1,7 @@
+import os from "node:os";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
-
 import authRouter from "./modules/auth/auth.routes.js";
 import categoryRoutes from "./modules/category/category.routes.js";
 import reportRoutes from "./modules/report/report.routes.js";
@@ -53,6 +53,11 @@ app.use(express.json());
 
 app.use(generalRateLimit);
 
+app.get("/whoami", (_req, res) => {
+  res.json({
+    instance: os.hostname(),
+  });
+});
 app.get("/", (_req, res) => {
   res.json({
     status: "ok",
