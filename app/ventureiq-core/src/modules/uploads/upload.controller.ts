@@ -11,55 +11,37 @@ import {
   deleteFile,
 } from "./upload.service.js";
 
-export const uploadFile = asyncHandler(
-  async (req: Request, res: Response) => {
-    if (!req.user) {
-      throw new AppError(
-        "Not authenticated",
-        401,
-      );
-    }
+export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    throw new AppError("Not authenticated", 401);
+  }
 
-    if (!req.file) {
-      throw new AppError(
-        "No file was uploaded",
-        400,
-      );
-    }
+  if (!req.file) {
+    throw new AppError("No file was uploaded", 400);
+  }
 
-    const reportId =
-      typeof req.body.reportId === "string" &&
-      req.body.reportId.trim()
-        ? req.body.reportId.trim()
-        : undefined;
+  const reportId =
+    typeof req.body.reportId === "string" && req.body.reportId.trim()
+      ? req.body.reportId.trim()
+      : undefined;
 
-    const record = await saveFileRecord(
-      req.file,
-      req.user.userId,
-      reportId,
-    );
+  const record = await saveFileRecord(req.file, req.user.userId, reportId);
 
-    return res.status(201).json({
-      status: "ok",
-      data: record,
-    });
-  },
-);
+  return res.status(201).json({
+    status: "ok",
+    data: record,
+  });
+});
 
 export const getFilesForReport = asyncHandler(
   async (req: Request, res: Response) => {
     const reportId = req.params.reportId;
 
     if (typeof reportId !== "string" || !reportId.trim()) {
-      throw new AppError(
-        "Invalid report ID",
-        400,
-      );
+      throw new AppError("Invalid report ID", 400);
     }
 
-    const files = await listFilesForReport(
-      reportId,
-    );
+    const files = await listFilesForReport(reportId);
 
     return res.status(200).json({
       status: "ok",
@@ -76,27 +58,20 @@ export const downloadFile = asyncHandler(
       throw new AppError("Invalid file ID", 400);
     }
 
-    const file = await getFileById(
-      fileId,
-    );
+    const file = await getFileById(fileId);
 
-    return res.download(
-      path.resolve(file.path),
-      file.originalName,
-    );
+    return res.download(path.resolve(file.path), file.originalName);
   },
 );
 
-export const removeFile = asyncHandler(
-  async (req: Request, res: Response) => {
-    const fileId = req.params.id;
+export const removeFile = asyncHandler(async (req: Request, res: Response) => {
+  const fileId = req.params.id;
 
-    if (typeof fileId !== "string" || !fileId.trim()) {
-      throw new AppError("Invalid file ID", 400);
-    }
+  if (typeof fileId !== "string" || !fileId.trim()) {
+    throw new AppError("Invalid file ID", 400);
+  }
 
-    await deleteFile(fileId);
+  await deleteFile(fileId);
 
-    return res.status(204).send();
-  },
-);
+  return res.status(204).send();
+});

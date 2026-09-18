@@ -45,9 +45,7 @@ export async function getOrSetCache<T>(
   return fresh;
 }
 
-export async function invalidateCache(
-  pattern: string,
-): Promise<void> {
+export async function invalidateCache(pattern: string): Promise<void> {
   try {
     const keys = await redis.keys(pattern);
 
@@ -57,9 +55,7 @@ export async function invalidateCache(
 
     await redis.del(...keys);
 
-    console.log(
-      `Cache invalidated: ${keys.length} key(s) matching ${pattern}`,
-    );
+    console.log(`Cache invalidated: ${keys.length} key(s) matching ${pattern}`);
   } catch (error) {
     console.error(
       `Redis invalidation failed for ${pattern}:`,

@@ -7,10 +7,7 @@ import {
   removeFile,
 } from "./upload.controller.js";
 
-import {
-  authenticate,
-  authorize,
-} from "../../middleware/auth.middleware.js";
+import { authenticate, authorize } from "../../middleware/auth.middleware.js";
 
 import { upload } from "../../config/multer.js";
 
@@ -24,23 +21,10 @@ router.post(
   uploadFile,
 );
 
-router.get(
-  "/report/:reportId",
-  authenticate,
-  getFilesForReport,
-);
+router.get("/report/:reportId", authenticate, getFilesForReport);
 
-router.get(
-  "/:id/download",
-  authenticate,
-  downloadFile,
-);
+router.get("/:id/download", authenticate, downloadFile);
 
-router.delete(
-  "/:id",
-  authenticate,
-  authorize("ADMIN"),
-  removeFile,
-);
+router.delete("/:id", authenticate, authorize("ADMIN"), removeFile);
 
 export default router;
