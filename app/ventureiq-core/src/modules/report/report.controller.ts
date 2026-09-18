@@ -1,7 +1,4 @@
-import type {
-  Request,
-  Response,
-} from "express";
+import type { Request, Response } from "express";
 
 import {
   createReportSchema,
@@ -17,286 +14,101 @@ import {
   deleteReport,
 } from "./report.service.js";
 
+import { AppError } from "../../utils/AppError.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+
 // CREATE
-export async function create(
-  req: Request,
-  res: Response,
-) {
-  const parsed =
-    createReportSchema.safeParse(req.body);
+
+export const create = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = createReportSchema.safeParse(req.body);
 
   if (!parsed.success) {
-    return res.status(400).json({
-      status: "error",
-      errors:
-        parsed.error.flatten().fieldErrors,
-    });
+    throw new AppError(JSON.stringify(parsed.error.flatten().fieldErrors), 400);
   }
 
   if (!req.user) {
-    return res.status(401).json({
-      status: "error",
-      message: "Not authenticated",
-    });
+    throw new AppError("Not authenticated", 401);
   }
 
-  try {
-    const report = await createReport(
-      parsed.data,
-      req.user.userId,
-    );
+  const report = await createReport(parsed.data, req.user.userId);
 
-    return res.status(201).json({
-      status: "ok",
-      data: report,
-    });
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "";
-
-    if (
-      message === "CATEGORY_NOT_FOUND"
-    ) {
-      return res.status(404).json({
-        status: "error",
-        message: "Category not found",
-      });
-    }
-
-    if (
-      message === "REPORT_SLUG_EXISTS"
-    ) {
-      return res.status(409).json({
-        status: "error",
-        message:
-          "A report with this title already exists",
-      });
-    }
-
-    if (
-      message === "INVALID_REPORT_TITLE"
-    ) {
-      return res.status(400).json({
-        status: "error",
-        message: "Invalid report title",
-      });
-    }
-
-    console.error(error);
-
-    return res.status(500).json({
-      status: "error",
-      message: "Something went wrong",
-    });
-  }
-}
+  return res.status(201).json({
+    status: "ok",
+    data: report,
+  });
+});
 
 // GET ALL
-export async function getAll(
-  req: Request,
-  res: Response,
-) {
-  const parsed =
-    listReportsQuerySchema.safeParse(
-      req.query,
-    );
+
+export const getAll = asyncHandler(async (req: Request, res: Response) => {
+  const parsed = listReportsQuerySchema.safeParse(req.query);
 
   if (!parsed.success) {
-    return res.status(400).json({
-      status: "error",
-      errors:
-        parsed.error.flatten().fieldErrors,
-    });
+    throw new AppError(JSON.stringify(parsed.error.flatten().fieldErrors), 400);
   }
 
-  try {
-    const isAdmin =
-      req.user?.role === "ADMIN";
+  const isAdmin = req.user?.role === "ADMIN";
 
-    const result = await listReports(
-      parsed.data,
-      !isAdmin,
-    );
+  const result = await listReports(parsed.data, !isAdmin);
 
-    return res.status(200).json({
-      status: "ok",
-      ...result,
-    });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      status: "error",
-      message: "Failed to fetch reports",
-    });
-  }
-}
+  return res.status(200).json({
+    status: "ok",
+    ...result,
+  });
+});
 
 // GET ONE
-export async function getOne(
-  req: Request,
-  res: Response,
-) {
+
+export const getOne = asyncHandler(async (req: Request, res: Response) => {
   const id = req.params.id;
 
   if (!id || Array.isArray(id)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid report ID",
-    });
+    throw new AppError("Invalid report ID", 400);
   }
 
-  const isAdmin =
-    req.user?.role === "ADMIN";
+  const isAdmin = req.user?.role === "ADMIN";
 
-  try {
-    const report =
-      await getReportById(
-        id,
-        !isAdmin,
-      );
+  const report = await getReportById(id, !isAdmin);
 
-    return res.status(200).json({
-      status: "ok",
-      data: report,
-    });
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === "REPORT_NOT_FOUND"
-    ) {
-      return res.status(404).json({
-        status: "error",
-        message: "Report not found",
-      });
-    }
-
-    console.error(error);
-
-    return res.status(500).json({
-      status: "error",
-      message: "Failed to fetch report",
-    });
-  }
-}
+  return res.status(200).json({
+    status: "ok",
+    data: report,
+  });
+});
 
 // UPDATE
-export async function update(
-  req: Request,
-  res: Response,
-) {
+
+export const update = asyncHandler(async (req: Request, res: Response) => {
   const id = req.params.id;
 
   if (!id || Array.isArray(id)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid report ID",
-    });
+    throw new AppError("Invalid report ID", 400);
   }
 
-  const parsed =
-    updateReportSchema.safeParse(
-      req.body,
-    );
+  const parsed = updateReportSchema.safeParse(req.body);
 
   if (!parsed.success) {
-    return res.status(400).json({
-      status: "error",
-      errors:
-        parsed.error.flatten().fieldErrors,
-    });
+    throw new AppError(JSON.stringify(parsed.error.flatten().fieldErrors), 400);
   }
 
-  try {
-    const report =
-      await updateReport(
-        id,
-        parsed.data,
-      );
+  const report = await updateReport(id, parsed.data);
 
-    return res.status(200).json({
-      status: "ok",
-      data: report,
-    });
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "";
-
-    if (
-      message === "REPORT_NOT_FOUND"
-    ) {
-      return res.status(404).json({
-        status: "error",
-        message: "Report not found",
-      });
-    }
-
-    if (
-      message === "CATEGORY_NOT_FOUND"
-    ) {
-      return res.status(404).json({
-        status: "error",
-        message: "Category not found",
-      });
-    }
-
-    if (
-      message === "REPORT_SLUG_EXISTS"
-    ) {
-      return res.status(409).json({
-        status: "error",
-        message:
-          "A report with this title already exists",
-      });
-    }
-
-    console.error(error);
-
-    return res.status(500).json({
-      status: "error",
-      message: "Failed to update report",
-    });
-  }
-}
+  return res.status(200).json({
+    status: "ok",
+    data: report,
+  });
+});
 
 // DELETE
-export async function remove(
-  req: Request,
-  res: Response,
-) {
+
+export const remove = asyncHandler(async (req: Request, res: Response) => {
   const id = req.params.id;
 
   if (!id || Array.isArray(id)) {
-    return res.status(400).json({
-      status: "error",
-      message: "Invalid report ID",
-    });
+    throw new AppError("Invalid report ID", 400);
   }
 
-  try {
-    await deleteReport(id);
+  await deleteReport(id);
 
-    return res.status(204).send();
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === "REPORT_NOT_FOUND"
-    ) {
-      return res.status(404).json({
-        status: "error",
-        message: "Report not found",
-      });
-    }
-
-    console.error(error);
-
-    return res.status(500).json({
-      status: "error",
-      message: "Failed to delete report",
-    });
-  }
-}
+  return res.status(204).send();
+});

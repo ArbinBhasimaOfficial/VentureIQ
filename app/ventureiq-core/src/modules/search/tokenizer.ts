@@ -58,9 +58,5 @@ export function tokenize(text: string): string[] {
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter(
-      (token) =>
-        token.length > 1 &&
-        !STOPWORDS.has(token),
-    );
+    .filter((token) => token.length > 1 && !STOPWORDS.has(token));
 }

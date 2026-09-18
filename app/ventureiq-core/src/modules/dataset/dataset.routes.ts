@@ -8,10 +8,7 @@ import {
   remove,
 } from "./dataset.controller.js";
 
-import {
-  authenticate,
-  authorize,
-} from "../../middleware/auth.middleware.js";
+import { authenticate, authorize } from "../../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -21,25 +18,10 @@ router.get("/", getAll);
 router.get("/:id", getOne);
 
 // Admin only
-router.post(
-  "/",
-  authenticate,
-  authorize("ADMIN"),
-  create,
-);
+router.post("/", authenticate, authorize("ADMIN"), create);
 
-router.patch(
-  "/:id",
-  authenticate,
-  authorize("ADMIN"),
-  update,
-);
+router.patch("/:id", authenticate, authorize("ADMIN"), update);
 
-router.delete(
-  "/:id",
-  authenticate,
-  authorize("ADMIN"),
-  remove,
-);
+router.delete("/:id", authenticate, authorize("ADMIN"), remove);
 
 export default router;

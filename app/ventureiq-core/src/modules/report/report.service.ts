@@ -1,24 +1,18 @@
-
 import { db } from "../../prisma/db.js";
-
-import {
-  getOrSetCache,
-  invalidateCache,
-} from "../../utils/cache.js";
-
+import { getOrSetCache, invalidateCache } from "../../utils/cache.js";
 import {
   indexDocument,
   removeDocumentIndex,
 } from "../search/search.service.js";
-
 import type {
   CreateReportInput,
   UpdateReportInput,
   ListReportsQuery,
 } from "./report.schema.js";
+import { generateAlertsForReport } from "../alert/alert.service.js";
+import { AppError } from "../../utils/AppError.js";
 
-const MarketReport =
-  db.orm.public!.MarketReport!;
+const MarketReport = db.orm.public!.MarketReport!;
 
 function slugify(value: string): string {
   return value
@@ -35,87 +29,68 @@ function normalizeText(value: string): string {
 }
 
 // CREATE
-export async function createReport(
-  input: CreateReportInput,
-  authorId: string,
-) {
-  const category =
-    await db.orm.public!.MarketCategory!
-      .where({
-        id: input.categoryId,
-      })
-      .all()
-      .first();
+
+export async function createReport(input: CreateReportInput, authorId: string) {
+  const category = await db.orm
+    .public!.MarketCategory!.where({
+      id: input.categoryId,
+    })
+    .all()
+    .first();
 
   if (!category) {
-    throw new Error("CATEGORY_NOT_FOUND");
+    throw new AppError("Category not found", 404);
   }
 
   const title = normalizeText(input.title);
   const slug = slugify(title);
 
   if (!slug) {
-    throw new Error("INVALID_REPORT_TITLE");
+    throw new AppError("Invalid report title", 400);
   }
 
-  const existing =
-    await MarketReport
-      .where({
-        slug,
-      })
-      .all()
-      .first();
+  const existing = await MarketReport.where({
+    slug,
+  })
+    .all()
+    .first();
 
   if (existing) {
-    throw new Error("REPORT_SLUG_EXISTS");
+    throw new AppError("A report with this title already exists", 409);
   }
 
-  const report =
-    await MarketReport.create({
-      title,
-      slug,
-      summary: input.summary.trim(),
-      content: input.content.trim(),
-      industry: normalizeText(
-        input.industry,
-      ),
-      region:
-        input.region?.trim() || null,
-      categoryId: input.categoryId,
-      authorId,
-      status: input.status ?? "DRAFT",
-    });
+  const report = await MarketReport.create({
+    title,
+    slug,
+    summary: input.summary.trim(),
+    content: input.content.trim(),
+    industry: normalizeText(input.industry),
+    region: input.region?.trim() || null,
+    categoryId: input.categoryId,
+    authorId,
+    status: input.status ?? "DRAFT",
+  });
 
-  /*
-   * Add the new report to the inverted index.
-   */
+  // Add the new report to the inverted index.
   await indexDocument(
     report.id,
     "REPORT",
     `${report.title} ${report.summary} ${report.content}`,
   );
 
-  /*
-   * New report changes every report listing.
-   */
-  await invalidateCache(
-    "reports:list:*",
-  );
+  // New report changes every report listing.
+  await invalidateCache("reports:list:*");
 
   return report;
 }
 
 // LIST
+
 export async function listReports(
   query: ListReportsQuery,
   publicOnly: boolean,
 ) {
-  const {
-    page,
-    limit,
-    categoryId,
-    industry,
-  } = query;
+  const { page, limit, categoryId, industry } = query;
 
   /*
    * publicOnly is part of the key because:
@@ -129,128 +104,90 @@ export async function listReports(
    * must never share the same cached result.
    */
   const cacheKey =
-    `reports:list:${publicOnly}:${page}:${limit}:${categoryId || "all"}:${industry || "all"}`;
+    `reports:list:${publicOnly}:${page}:${limit}:` +
+    `${categoryId || "all"}:${industry || "all"}`;
 
-  return getOrSetCache(
-    cacheKey,
-    60,
-    async () => {
-      const skip =
-        (page - 1) * limit;
+  return getOrSetCache(cacheKey, 60, async () => {
+    const skip = (page - 1) * limit;
 
-      let reportsQuery =
-        MarketReport;
+    let reportsQuery = MarketReport;
 
-      if (publicOnly) {
-        reportsQuery =
-          reportsQuery.where({
-            status: "PUBLISHED",
-          });
-      }
+    if (publicOnly) {
+      reportsQuery = reportsQuery.where({
+        status: "PUBLISHED",
+      });
+    }
 
-      if (categoryId) {
-        reportsQuery =
-          reportsQuery.where({
-            categoryId,
-          });
-      }
+    if (categoryId) {
+      reportsQuery = reportsQuery.where({
+        categoryId,
+      });
+    }
 
-      if (industry) {
-        reportsQuery =
-          reportsQuery.where({
-            industry,
-          });
-      }
+    if (industry) {
+      reportsQuery = reportsQuery.where({
+        industry,
+      });
+    }
 
-      const reports =
-        await reportsQuery
-          .orderBy((report) =>
-            report.createdAt.desc(),
-          )
-          .limit(skip + limit)
-          .all();
+    const reports = await reportsQuery
+      .orderBy((report) => report.createdAt.desc())
+      .limit(skip + limit)
+      .all();
 
-      const paginatedReports =
-        reports.slice(
-          skip,
-          skip + limit,
-        );
+    const paginatedReports = reports.slice(skip, skip + limit);
 
-      return {
-        reports: paginatedReports,
-        pagination: {
-          page,
-          limit,
-          count:
-            paginatedReports.length,
-        },
-      };
-    },
-  );
+    return {
+      reports: paginatedReports,
+      pagination: {
+        page,
+        limit,
+        count: paginatedReports.length,
+      },
+    };
+  });
 }
 
 // GET ONE
-export async function getReportById(
-  id: string,
-  publicOnly: boolean,
-) {
+
+export async function getReportById(id: string, publicOnly: boolean) {
   /*
    * publicOnly is included in the key because
    * an ADMIN may access DRAFT/ARCHIVED reports,
    * while public users may only access PUBLISHED reports.
    */
-  const cacheKey =
-    `reports:detail:${id}:${publicOnly}`;
+  const cacheKey = `reports:detail:${id}:${publicOnly}`;
 
-  return getOrSetCache(
-    cacheKey,
-    300,
-    async () => {
-      const report =
-        await MarketReport
-          .where({
-            id,
-          })
-          .all()
-          .first();
-
-      if (!report) {
-        throw new Error(
-          "REPORT_NOT_FOUND",
-        );
-      }
-
-      if (
-        publicOnly &&
-        report.status !== "PUBLISHED"
-      ) {
-        throw new Error(
-          "REPORT_NOT_FOUND",
-        );
-      }
-
-      return report;
-    },
-  );
-}
-
-// UPDATE
-export async function updateReport(
-  id: string,
-  input: UpdateReportInput,
-) {
-  const report =
-    await MarketReport
-      .where({
-        id,
-      })
+  return getOrSetCache(cacheKey, 300, async () => {
+    const report = await MarketReport.where({
+      id,
+    })
       .all()
       .first();
 
+    if (!report) {
+      throw new AppError("Report not found", 404);
+    }
+
+    if (publicOnly && report.status !== "PUBLISHED") {
+      throw new AppError("Report not found", 404);
+    }
+
+    return report;
+  });
+}
+
+// UPDATE
+
+export async function updateReport(id: string, input: UpdateReportInput) {
+  const report = await MarketReport.where({
+    id,
+  })
+    .all()
+    .first();
+
   if (!report) {
-    throw new Error(
-      "REPORT_NOT_FOUND",
-    );
+    throw new AppError("Report not found", 404);
   }
 
   const updateData: {
@@ -261,40 +198,25 @@ export async function updateReport(
     industry?: string;
     region?: string | null;
     categoryId?: string;
-    status?:
-      | "DRAFT"
-      | "PUBLISHED"
-      | "ARCHIVED";
+    status?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   } = {};
 
   if (input.title !== undefined) {
-    const title =
-      normalizeText(input.title);
-
-    const slug =
-      slugify(title);
+    const title = normalizeText(input.title);
+    const slug = slugify(title);
 
     if (!slug) {
-      throw new Error(
-        "INVALID_REPORT_TITLE",
-      );
+      throw new AppError("Invalid report title", 400);
     }
 
-    const existingSlug =
-      await MarketReport
-        .where({
-          slug,
-        })
-        .all()
-        .first();
+    const existingSlug = await MarketReport.where({
+      slug,
+    })
+      .all()
+      .first();
 
-    if (
-      existingSlug &&
-      existingSlug.id !== id
-    ) {
-      throw new Error(
-        "REPORT_SLUG_EXISTS",
-      );
+    if (existingSlug && existingSlug.id !== id) {
+      throw new AppError("A report with this title already exists", 409);
     }
 
     updateData.title = title;
@@ -302,68 +224,48 @@ export async function updateReport(
   }
 
   if (input.summary !== undefined) {
-    updateData.summary =
-      input.summary.trim();
+    updateData.summary = input.summary.trim();
   }
 
   if (input.content !== undefined) {
-    updateData.content =
-      input.content.trim();
+    updateData.content = input.content.trim();
   }
 
   if (input.industry !== undefined) {
-    updateData.industry =
-      normalizeText(
-        input.industry,
-      );
+    updateData.industry = normalizeText(input.industry);
   }
 
   if (input.region !== undefined) {
-    updateData.region =
-      input.region.trim() || null;
+    updateData.region = input.region.trim() || null;
   }
 
   if (input.categoryId !== undefined) {
-    const category =
-      await db.orm.public!
-        .MarketCategory!
-        .where({
-          id: input.categoryId,
-        })
-        .all()
-        .first();
+    const category = await db.orm
+      .public!.MarketCategory!.where({
+        id: input.categoryId,
+      })
+      .all()
+      .first();
 
     if (!category) {
-      throw new Error(
-        "CATEGORY_NOT_FOUND",
-      );
+      throw new AppError("Category not found", 404);
     }
 
-    updateData.categoryId =
-      input.categoryId;
+    updateData.categoryId = input.categoryId;
   }
 
   if (input.status !== undefined) {
-    updateData.status =
-      input.status;
+    updateData.status = input.status;
   }
 
-  if (
-    Object.keys(updateData)
-      .length === 0
-  ) {
+  if (Object.keys(updateData).length === 0) {
     return report;
   }
 
-  const updatedReport =
-    await MarketReport
-      .where({ id })
-      .update(updateData);
+  const updatedReport = await MarketReport.where({ id }).update(updateData);
 
   if (!updatedReport) {
-    throw new Error(
-      "REPORT_NOT_FOUND",
-    );
+    throw new AppError("Report not found", 404);
   }
 
   /*
@@ -376,6 +278,10 @@ export async function updateReport(
     `${updatedReport.title} ${updatedReport.summary} ${updatedReport.content}`,
   );
 
+  if (updatedReport.status === "PUBLISHED") {
+    await generateAlertsForReport(updatedReport.id);
+  }
+
   /*
    * Any update can affect:
    *
@@ -384,61 +290,43 @@ export async function updateReport(
    * 3. Public report detail
    * 4. Admin report detail
    */
-  await invalidateCache(
-    "reports:list:*",
-  );
+  await invalidateCache("reports:list:*");
 
-  await invalidateCache(
-    `reports:detail:${id}:*`,
-  );
+  await invalidateCache(`reports:detail:${id}:*`);
 
   return updatedReport;
 }
 
 // DELETE
-export async function deleteReport(
-  id: string,
-) {
-  const report =
-    await MarketReport
-      .where({
-        id,
-      })
-      .all()
-      .first();
+
+export async function deleteReport(id: string) {
+  const report = await MarketReport.where({
+    id,
+  })
+    .all()
+    .first();
 
   if (!report) {
-    throw new Error(
-      "REPORT_NOT_FOUND",
-    );
+    throw new AppError("Report not found", 404);
   }
 
-  await MarketReport
-    .where({
-      id,
-    })
-    .delete();
+  await MarketReport.where({
+    id,
+  }).delete();
 
   /*
    * Remove the report from the
    * inverted index.
    */
-  await removeDocumentIndex(
-    id,
-    "REPORT",
-  );
+  await removeDocumentIndex(id, "REPORT");
 
   /*
    * Delete affects lists and
    * this report's detail cache.
    */
-  await invalidateCache(
-    "reports:list:*",
-  );
+  await invalidateCache("reports:list:*");
 
-  await invalidateCache(
-    `reports:detail:${id}:*`,
-  );
+  await invalidateCache(`reports:detail:${id}:*`);
 
   return report;
 }

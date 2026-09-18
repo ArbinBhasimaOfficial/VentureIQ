@@ -1,19 +1,46 @@
+
 services:
-  postgres:
-    image: postgres:18.6-alpine3.23
-    container_name: ventureiq_postgres
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ventureiq_api
     restart: unless-stopped
 
-    environment:
-      POSTGRES_USER: ventureiq
-      POSTGRES_PASSWORD: ventureiq1570
-      POSTGRES_DB: ventureiq_db
-
     ports:
-      - "5432:5432"
+      - "4000:4000"
+
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+
+      # Neon PostgreSQL
+      DATABASE_URL: ${DATABASE_URL}
+
+      # Redis Docker service
+      REDIS_URL: redis://redis:6379
+
+      # Authentication
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+
+      # Data ingestion
+      INGESTION_API_KEY: ${INGESTION_API_KEY}
+
+      # CORS and logging
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      # Uploads
+      MAX_FILE_SIZE_MB: ${MAX_FILE_SIZE_MB:-10}
+      UPLOAD_DIR: uploads
+
+    depends_on:
+      - redis
 
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - uploads_data:/app/uploads
 
   redis:
     image: redis:8-alpine
@@ -29,5 +56,5 @@ services:
     command: redis-server --appendonly yes
 
 volumes:
-  postgres_data:
   redis_data:
+  uploads_data:

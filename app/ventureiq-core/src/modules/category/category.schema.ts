@@ -10,10 +10,6 @@ export const updateCategorySchema = z.object({
   description: z.string().trim().max(500).optional(),
 });
 
-export type CreateCategoryInput = z.infer<
-  typeof createCategorySchema
->;
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
 
-export type UpdateCategoryInput = z.infer<
-  typeof updateCategorySchema
->;
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;

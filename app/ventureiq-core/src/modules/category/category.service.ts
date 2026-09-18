@@ -1,4 +1,6 @@
 import { db } from "../../prisma/db.js";
+import { AppError } from "../../utils/AppError.js";
+
 import type {
   CreateCategoryInput,
   UpdateCategoryInput,
@@ -26,25 +28,19 @@ export async function createCategory(input: CreateCategoryInput) {
   const slug = slugify(name);
 
   if (!name || !slug) {
-    throw new Error("INVALID_CATEGORY_NAME");
+    throw new AppError("Invalid category name", 400);
   }
 
-  const existingByName = await MarketCategory
-    .where({ name })
-    .all()
-    .first();
+  const existingByName = await MarketCategory.where({ name }).all().first();
 
   if (existingByName) {
-    throw new Error("CATEGORY_ALREADY_EXISTS");
+    throw new AppError("Category already exists", 409);
   }
 
-  const existingBySlug = await MarketCategory
-    .where({ slug })
-    .all()
-    .first();
+  const existingBySlug = await MarketCategory.where({ slug }).all().first();
 
   if (existingBySlug) {
-    throw new Error("CATEGORY_SLUG_ALREADY_EXISTS");
+    throw new AppError("Category already exists", 409);
   }
 
   return MarketCategory.create({
@@ -56,31 +52,26 @@ export async function createCategory(input: CreateCategoryInput) {
 
 // READ ALL
 export async function getCategories() {
-  return MarketCategory
-    .orderBy((category) => category.name.asc())
-    .all();
+  return MarketCategory.orderBy((category) => category.name.asc()).all();
 }
 
 // READ ONE
 export async function getCategoryById(id: string) {
-  return MarketCategory
-    .where({ id })
-    .all()
-    .first();
+  const category = await MarketCategory.where({ id }).all().first();
+
+  if (!category) {
+    throw new AppError("Category not found", 404);
+  }
+
+  return category;
 }
 
 // UPDATE
-export async function updateCategory(
-  id: string,
-  input: UpdateCategoryInput,
-) {
-  const existingCategory = await MarketCategory
-    .where({ id })
-    .all()
-    .first();
+export async function updateCategory(id: string, input: UpdateCategoryInput) {
+  const existingCategory = await MarketCategory.where({ id }).all().first();
 
   if (!existingCategory) {
-    throw new Error("CATEGORY_NOT_FOUND");
+    throw new AppError("Category not found", 404);
   }
 
   const updateData: {
@@ -94,25 +85,19 @@ export async function updateCategory(
     const slug = slugify(name);
 
     if (!name || !slug) {
-      throw new Error("INVALID_CATEGORY_NAME");
+      throw new AppError("Invalid category name", 400);
     }
 
-    const existingByName = await MarketCategory
-      .where({ name })
-      .all()
-      .first();
+    const existingByName = await MarketCategory.where({ name }).all().first();
 
     if (existingByName && existingByName.id !== id) {
-      throw new Error("CATEGORY_ALREADY_EXISTS");
+      throw new AppError("Category already exists", 409);
     }
 
-    const existingBySlug = await MarketCategory
-      .where({ slug })
-      .all()
-      .first();
+    const existingBySlug = await MarketCategory.where({ slug }).all().first();
 
     if (existingBySlug && existingBySlug.id !== id) {
-      throw new Error("CATEGORY_SLUG_ALREADY_EXISTS");
+      throw new AppError("Category already exists", 409);
     }
 
     updateData.name = name;
@@ -120,33 +105,25 @@ export async function updateCategory(
   }
 
   if (input.description !== undefined) {
-    updateData.description =
-      input.description.trim() || null;
+    updateData.description = input.description.trim() || null;
   }
 
   if (Object.keys(updateData).length === 0) {
     return existingCategory;
   }
 
-  return MarketCategory
-    .where({ id })
-    .update(updateData);
+  return MarketCategory.where({ id }).update(updateData);
 }
 
 // DELETE
 export async function deleteCategory(id: string) {
-  const existingCategory = await MarketCategory
-    .where({ id })
-    .all()
-    .first();
+  const existingCategory = await MarketCategory.where({ id }).all().first();
 
   if (!existingCategory) {
-    throw new Error("CATEGORY_NOT_FOUND");
+    throw new AppError("Category not found", 404);
   }
 
-  await MarketCategory
-    .where({ id })
-    .delete();
+  await MarketCategory.where({ id }).delete();
 
   return existingCategory;
 }

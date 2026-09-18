@@ -1,18 +1,12 @@
-
 import { db } from "../../prisma/db.js";
 
-import {
-  getOrSetCache,
-  invalidateCache,
-} from "../../utils/cache.js";
+import { getOrSetCache, invalidateCache } from "../../utils/cache.js";
 
 import { tokenize } from "./tokenizer.js";
 
-const SearchIndexTerm =
-  db.orm.public!.SearchIndexTerm!;
+const SearchIndexTerm = db.orm.public!.SearchIndexTerm!;
 
-const SearchDocumentStats =
-  db.orm.public!.SearchDocumentStats!;
+const SearchDocumentStats = db.orm.public!.SearchDocumentStats!;
 
 const K1 = 1.5;
 const B = 0.75;
@@ -35,39 +29,26 @@ export interface CorpusStats {
  * relying on a filtered collection delete. This makes the rebuild
  * deterministic with the Prisma 8 ORM.
  */
-async function clearDocumentIndex(
-  documentId: string,
-  documentType: string,
-) {
-  const existingTerms =
-    await SearchIndexTerm
-      .where({
-        documentId,
-        documentType,
-      })
-      .all();
+async function clearDocumentIndex(documentId: string, documentType: string) {
+  const existingTerms = await SearchIndexTerm.where({
+    documentId,
+    documentType,
+  }).all();
 
   for (const term of existingTerms) {
-    await SearchIndexTerm
-      .where({ id: term.id })
-      .delete();
+    await SearchIndexTerm.where({ id: term.id }).delete();
   }
 
-  const existingStats =
-    await SearchDocumentStats
-      .where({
-        documentId,
-        documentType,
-      })
-      .all();
+  const existingStats = await SearchDocumentStats.where({
+    documentId,
+    documentType,
+  }).all();
 
   for (const stat of existingStats) {
-    await SearchDocumentStats
-      .where({
-        documentId,
-        documentType,
-      })
-      .delete();
+    await SearchDocumentStats.where({
+      documentId,
+      documentType,
+    }).delete();
   }
 }
 
@@ -86,19 +67,13 @@ export async function indexDocument(
   const termFrequency = new Map<string, number>();
 
   for (const token of tokens) {
-    termFrequency.set(
-      token,
-      (termFrequency.get(token) ?? 0) + 1,
-    );
+    termFrequency.set(token, (termFrequency.get(token) ?? 0) + 1);
   }
 
   /*
    * Completely remove the previous index before rebuilding.
    */
-  await clearDocumentIndex(
-    documentId,
-    documentType,
-  );
+  await clearDocumentIndex(documentId, documentType);
 
   /*
    * Insert one row per unique term.
@@ -126,9 +101,7 @@ export async function indexDocument(
   /*
    * Corpus statistics changed.
    */
-  await invalidateCache(
-    `search:corpus:${documentType}`,
-  );
+  await invalidateCache(`search:corpus:${documentType}`);
 }
 
 /**
@@ -138,57 +111,36 @@ export async function removeDocumentIndex(
   documentId: string,
   documentType: string,
 ) {
-  await clearDocumentIndex(
-    documentId,
-    documentType,
-  );
+  await clearDocumentIndex(documentId, documentType);
 
-  await invalidateCache(
-    `search:corpus:${documentType}`,
-  );
+  await invalidateCache(`search:corpus:${documentType}`);
 }
 
 /**
  * Get corpus statistics used by BM25.
  */
-async function getCorpusStats(
-  documentType: string,
-): Promise<CorpusStats> {
-  return getOrSetCache(
-    `search:corpus:${documentType}`,
-    120,
-    async () => {
-      const stats =
-        await SearchDocumentStats
-          .where({ documentType })
-          .all();
+async function getCorpusStats(documentType: string): Promise<CorpusStats> {
+  return getOrSetCache(`search:corpus:${documentType}`, 120, async () => {
+    const stats = await SearchDocumentStats.where({ documentType }).all();
 
-      const N = stats.length;
+    const N = stats.length;
 
-      const totalLength =
-        stats.reduce(
-          (sum, stat) => sum + stat.length,
-          0,
-        );
+    const totalLength = stats.reduce((sum, stat) => sum + stat.length, 0);
 
-      const avgdl =
-        N > 0
-          ? totalLength / N
-          : 0;
+    const avgdl = N > 0 ? totalLength / N : 0;
 
-      const lengths: Record<string, number> = {};
+    const lengths: Record<string, number> = {};
 
-      for (const stat of stats) {
-        lengths[stat.documentId] = stat.length;
-      }
+    for (const stat of stats) {
+      lengths[stat.documentId] = stat.length;
+    }
 
-      return {
-        N,
-        avgdl,
-        lengths,
-      };
-    },
-  );
+    return {
+      N,
+      avgdl,
+      lengths,
+    };
+  });
 }
 
 /**
@@ -199,21 +151,13 @@ export async function searchDocuments(
   documentType: string,
   limit: number,
 ): Promise<SearchResult[]> {
-  const tokens = Array.from(
-    new Set(tokenize(queryText)),
-  );
+  const tokens = Array.from(new Set(tokenize(queryText)));
 
   if (tokens.length === 0) {
     return [];
   }
 
-  const {
-    N,
-    avgdl,
-    lengths,
-  } = await getCorpusStats(
-    documentType,
-  );
+  const { N, avgdl, lengths } = await getCorpusStats(documentType);
 
   if (N === 0) {
     return [];
@@ -222,13 +166,10 @@ export async function searchDocuments(
   const scores = new Map<string, number>();
 
   for (const term of tokens) {
-    const postings =
-      await SearchIndexTerm
-        .where({
-          term,
-          documentType,
-        })
-        .all();
+    const postings = await SearchIndexTerm.where({
+      term,
+      documentType,
+    }).all();
 
     const df = postings.length;
 
@@ -239,64 +180,32 @@ export async function searchDocuments(
     /*
      * BM25 inverse document frequency.
      */
-    const idf =
-      Math.log(
-        (N - df + 0.5) /
-          (df + 0.5) +
-          1,
-      );
+    const idf = Math.log((N - df + 0.5) / (df + 0.5) + 1);
 
     for (const posting of postings) {
-      const documentLength =
-        lengths[posting.documentId] ??
-        avgdl;
+      const documentLength = lengths[posting.documentId] ?? avgdl;
 
-      const tf =
-        posting.termFrequency;
+      const tf = posting.termFrequency;
 
-      const numerator =
-        tf * (K1 + 1);
+      const numerator = tf * (K1 + 1);
 
       const denominator =
-        tf +
-        K1 *
-          (
-            1 -
-            B +
-            B *
-              (
-                documentLength /
-                (avgdl || 1)
-              )
-          );
+        tf + K1 * (1 - B + B * (documentLength / (avgdl || 1)));
 
-      const score =
-        idf *
-        (numerator / denominator);
+      const score = idf * (numerator / denominator);
 
       scores.set(
         posting.documentId,
-        (
-          scores.get(
-            posting.documentId,
-          ) ?? 0
-        ) + score,
+        (scores.get(posting.documentId) ?? 0) + score,
       );
     }
   }
 
-  return Array.from(
-    scores.entries(),
-  )
-    .sort(
-      (a, b) => b[1] - a[1],
-    )
+  return Array.from(scores.entries())
+    .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
-    .map(
-      ([documentId, score]) => ({
-        documentId,
-        score,
-      }),
-    );
+    .map(([documentId, score]) => ({
+      documentId,
+      score,
+    }));
 }
-

@@ -17,10 +17,15 @@ model User {
   password  String
   name      String
   role      Role     @default(USER)
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 
-  reports   MarketReport[]
+  subscriptions AlertSubscription[]
+  alerts        Alert[]
+
+  reports       MarketReport[]
+  files         UploadedFile[]
 
   @@map("users")
 }
@@ -32,7 +37,8 @@ model MarketCategory {
   description   String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @default(now())
-
+  companies     Company[]
+  subscriptions AlertSubscription[]
   reports       MarketReport[]
 
   @@map("market_categories")
@@ -56,6 +62,8 @@ model MarketReport {
   author        User @relation(fields: [authorId], references: [id])
 
   datasets      Dataset[]
+  alerts        Alert[]
+  files         UploadedFile[]
 
 
   createdAt     DateTime @default(now())
@@ -114,4 +122,104 @@ model SearchDocumentStats {
   @@id([documentId, documentType])
 
   @@map("search_document_stats")
+}
+
+model Company {
+  id           String   @id @default(uuid())
+  name         String
+  slug         String   @unique
+  description  String?
+  website      String?
+  foundedYear  Int?
+  headquarters String?
+
+  categoryId String
+  category   MarketCategory @relation(
+    fields: [categoryId],
+    references: [id]
+  )
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@index([categoryId])
+
+  @@map("companies")
+}
+
+
+model AlertSubscription {
+  id String @id @default(uuid())
+
+  userId String
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  categoryId String?
+  category MarketCategory? @relation(
+    fields: [categoryId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  industry String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, categoryId, industry])
+  @@index([categoryId])
+  @@index([industry])
+
+  @@map("alert_subscriptions")
+}
+
+model Alert {
+  id String @id @default(uuid())
+
+  userId String
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  reportId String
+  report MarketReport @relation(
+    fields: [reportId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  message String
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+
+  @@map("alerts")
+}
+
+model UploadedFile {
+  id           String   @id @default(uuid())
+  originalName String
+  storedName   String   @unique
+  mimeType     String
+  size         Int
+  path         String
+
+  reportId     String?
+  report       MarketReport? @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  uploadedById String
+  uploadedBy   User @relation(fields: [uploadedById], references: [id])
+
+  createdAt    DateTime @default(now())
+
+  @@index([reportId])
+  @@index([uploadedById])
+  @@map("uploaded_files")
 }

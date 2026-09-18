@@ -1,8 +1,4 @@
-import type {
-  Request,
-  Response,
-  NextFunction,
-} from "express";
+import type { Request, Response, NextFunction } from "express";
 
 import jwt from "jsonwebtoken";
 
@@ -13,10 +9,7 @@ export function optionalAuthenticate(
 ) {
   const authHeader = req.headers.authorization;
 
-  if (
-    !authHeader ||
-    !authHeader.startsWith("Bearer ")
-  ) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return next();
   }
 
@@ -39,18 +32,19 @@ export function optionalAuthenticate(
       typeof decoded !== "object" ||
       decoded === null ||
       typeof decoded.userId !== "string" ||
-      (decoded.role !== "USER" &&
-        decoded.role !== "ADMIN")
+      (decoded.role !== "USER" && decoded.role !== "ADMIN")
     ) {
       return next();
     }
 
-    (req as Request & {
-      user: {
-        userId: string;
-        role: "USER" | "ADMIN";
-      };
-    }).user = {
+    (
+      req as Request & {
+        user: {
+          userId: string;
+          role: "USER" | "ADMIN";
+        };
+      }
+    ).user = {
       userId: decoded.userId,
       role: decoded.role,
     };
