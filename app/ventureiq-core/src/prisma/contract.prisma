@@ -11,6 +11,20 @@ enum ReportStatus {
   ARCHIVED
 }
 
+enum ResearchType {
+  ARTICLE
+  CASE_STUDY
+  WHITEPAPER
+  COMMENTARY
+}
+
+enum ResearchStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -26,6 +40,7 @@ model User {
 
   reports       MarketReport[]
   files         UploadedFile[]
+  research      Research[]
 
   @@map("users")
 }
@@ -40,6 +55,8 @@ model MarketCategory {
   companies     Company[]
   subscriptions AlertSubscription[]
   reports       MarketReport[]
+  trends        Trend[]
+  research      Research[]
 
   @@map("market_categories")
 }
@@ -64,6 +81,7 @@ model MarketReport {
   datasets      Dataset[]
   alerts        Alert[]
   files         UploadedFile[]
+  trends        TrendReport[]
 
 
   createdAt     DateTime @default(now())
@@ -219,7 +237,81 @@ model UploadedFile {
 
   createdAt    DateTime @default(now())
 
+  researchId   String?
+  research     Research? @relation(
+    fields:      [researchId],
+    references:   [id],
+    onDelete:     Cascade
+  )
+
+  @@index([researchId])
   @@index([reportId])
   @@index([uploadedById])
   @@map("uploaded_files")
+}
+
+enum TrendDirection {
+  RISING
+  FALLING
+  STABLE
+}
+
+model Trend {
+  id          String         @id @default(uuid())
+  title       String
+  slug        String         @unique
+  description String
+  industry    String
+  direction   TrendDirection @default(STABLE)
+
+  categoryId  String
+  category    MarketCategory @relation(fields: [categoryId], references: [id])
+
+  reports     TrendReport[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@index([categoryId])
+  @@index([industry])
+  @@index([direction])
+  @@map("trends")
+}
+
+model TrendReport {
+  trendId  String
+  trend    Trend @relation(fields: [trendId], references: [id], onDelete: Cascade)
+
+  reportId String
+  report   MarketReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@id([trendId, reportId])
+  @@index([reportId])
+  @@map("trend_reports")
+}
+
+model Research {
+  id         String         @id @default(uuid())
+  title      String
+  slug       String         @unique
+  summary    String
+  content    String
+  type       ResearchType   @default(ARTICLE)
+  status     ResearchStatus @default(DRAFT)
+
+  categoryId String?
+  category   MarketCategory? @relation(fields: [categoryId], references: [id])
+
+  authorId   String
+  author     User @relation(fields: [authorId], references: [id])
+
+  files      UploadedFile[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  @@index([categoryId])
+  @@index([status])
+  @@index([type])
+  @@map("research")
 }

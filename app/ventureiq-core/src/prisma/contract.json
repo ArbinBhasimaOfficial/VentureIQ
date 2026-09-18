@@ -28,12 +28,24 @@
       "model": "MarketReport",
       "namespace": "public"
     },
+    "research": {
+      "model": "Research",
+      "namespace": "public"
+    },
     "search_document_stats": {
       "model": "SearchDocumentStats",
       "namespace": "public"
     },
     "search_index_terms": {
       "model": "SearchIndexTerm",
+      "namespace": "public"
+    },
+    "trend_reports": {
+      "model": "TrendReport",
+      "namespace": "public"
+    },
+    "trends": {
+      "model": "Trend",
       "namespace": "public"
     },
     "uploaded_files": {
@@ -66,6 +78,44 @@
               }
             ]
           },
+          "ResearchStatus": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "DRAFT",
+                "value": "DRAFT"
+              },
+              {
+                "name": "PUBLISHED",
+                "value": "PUBLISHED"
+              },
+              {
+                "name": "ARCHIVED",
+                "value": "ARCHIVED"
+              }
+            ]
+          },
+          "ResearchType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ARTICLE",
+                "value": "ARTICLE"
+              },
+              {
+                "name": "CASE_STUDY",
+                "value": "CASE_STUDY"
+              },
+              {
+                "name": "WHITEPAPER",
+                "value": "WHITEPAPER"
+              },
+              {
+                "name": "COMMENTARY",
+                "value": "COMMENTARY"
+              }
+            ]
+          },
           "Role": {
             "codecId": "pg/text@1",
             "members": [
@@ -76,6 +126,23 @@
               {
                 "name": "ADMIN",
                 "value": "ADMIN"
+              }
+            ]
+          },
+          "TrendDirection": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "RISING",
+                "value": "RISING"
+              },
+              {
+                "name": "FALLING",
+                "value": "FALLING"
+              },
+              {
+                "name": "STABLE",
+                "value": "STABLE"
               }
             ]
           }
@@ -591,6 +658,21 @@
                   "namespace": "public"
                 }
               },
+              "research": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "categoryId"
+                  ]
+                },
+                "to": {
+                  "model": "Research",
+                  "namespace": "public"
+                }
+              },
               "subscriptions": {
                 "cardinality": "1:N",
                 "on": {
@@ -603,6 +685,21 @@
                 },
                 "to": {
                   "model": "AlertSubscription",
+                  "namespace": "public"
+                }
+              },
+              "trends": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "categoryId"
+                  ]
+                },
+                "to": {
+                  "model": "Trend",
                   "namespace": "public"
                 }
               }
@@ -802,6 +899,21 @@
                   "model": "UploadedFile",
                   "namespace": "public"
                 }
+              },
+              "trends": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "reportId"
+                  ]
+                },
+                "to": {
+                  "model": "TrendReport",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -845,6 +957,187 @@
               },
               "namespaceId": "public",
               "table": "market_reports"
+            }
+          },
+          "Research": {
+            "fields": {
+              "authorId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "categoryId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "content": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ResearchStatus",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "summary": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "title": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "ResearchType",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "author": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "authorId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "category": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "categoryId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "MarketCategory",
+                  "namespace": "public"
+                }
+              },
+              "files": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "researchId"
+                  ]
+                },
+                "to": {
+                  "model": "UploadedFile",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "authorId": {
+                  "column": "authorId"
+                },
+                "categoryId": {
+                  "column": "categoryId"
+                },
+                "content": {
+                  "column": "content"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "slug": {
+                  "column": "slug"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "summary": {
+                  "column": "summary"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "type": {
+                  "column": "type"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "research"
             }
           },
           "SearchDocumentStats": {
@@ -959,6 +1252,209 @@
               "table": "search_index_terms"
             }
           },
+          "Trend": {
+            "fields": {
+              "categoryId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "description": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "direction": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "TrendDirection",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "industry": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "title": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "category": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "categoryId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "MarketCategory",
+                  "namespace": "public"
+                }
+              },
+              "reports": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "trendId"
+                  ]
+                },
+                "to": {
+                  "model": "TrendReport",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "categoryId": {
+                  "column": "categoryId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "description": {
+                  "column": "description"
+                },
+                "direction": {
+                  "column": "direction"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "industry": {
+                  "column": "industry"
+                },
+                "slug": {
+                  "column": "slug"
+                },
+                "title": {
+                  "column": "title"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "trends"
+            }
+          },
+          "TrendReport": {
+            "fields": {
+              "reportId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "trendId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "report": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "reportId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "MarketReport",
+                  "namespace": "public"
+                }
+              },
+              "trend": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "trendId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Trend",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "reportId": {
+                  "column": "reportId"
+                },
+                "trendId": {
+                  "column": "trendId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "trend_reports"
+            }
+          },
           "UploadedFile": {
             "fields": {
               "createdAt": {
@@ -997,6 +1493,13 @@
                 }
               },
               "reportId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "researchId": {
                 "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
@@ -1042,6 +1545,22 @@
                   "namespace": "public"
                 }
               },
+              "research": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "researchId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Research",
+                  "namespace": "public"
+                }
+              },
               "uploadedBy": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1078,6 +1597,9 @@
                 },
                 "reportId": {
                   "column": "reportId"
+                },
+                "researchId": {
+                  "column": "researchId"
                 },
                 "size": {
                   "column": "size"
@@ -1201,6 +1723,21 @@
                 },
                 "to": {
                   "model": "MarketReport",
+                  "namespace": "public"
+                }
+              },
+              "research": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "authorId"
+                  ]
+                },
+                "to": {
+                  "model": "Research",
                   "namespace": "public"
                 }
               },
@@ -1891,6 +2428,185 @@
                 }
               ]
             },
+            "research": {
+              "checks": [
+                {
+                  "expression": "\"status\" IN ('DRAFT', 'PUBLISHED', 'ARCHIVED')",
+                  "name": "research_status_check_bc64f66b",
+                  "prefix": "research_status_check"
+                },
+                {
+                  "expression": "\"type\" IN ('ARTICLE', 'CASE_STUDY', 'WHITEPAPER', 'COMMENTARY')",
+                  "name": "research_type_check_a14a9123",
+                  "prefix": "research_type_check"
+                }
+              ],
+              "columns": {
+                "authorId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "categoryId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "content": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "DRAFT"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ResearchStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "summary": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ARTICLE"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "ResearchType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "categoryId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "research"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "market_categories"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "authorId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "research"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "users"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "authorId"
+                  ],
+                  "name": "research_authorId_idx_e47547ed",
+                  "prefix": "research_authorId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "categoryId"
+                  ],
+                  "name": "research_categoryId_idx_15c304f2",
+                  "prefix": "research_categoryId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "research_status_idx_e98638ab",
+                  "prefix": "research_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "type"
+                  ],
+                  "name": "research_type_idx_b6b604ea",
+                  "prefix": "research_type_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "slug"
+                  ]
+                }
+              ]
+            },
             "search_document_stats": {
               "columns": {
                 "documentId": {
@@ -1999,6 +2715,211 @@
                 }
               ]
             },
+            "trend_reports": {
+              "columns": {
+                "reportId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "trendId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "trendId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "trend_reports"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "trends"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "reportId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "trend_reports"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "market_reports"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "reportId"
+                  ],
+                  "name": "trend_reports_reportId_idx_d163019e",
+                  "prefix": "trend_reports_reportId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "trendId"
+                  ],
+                  "name": "trend_reports_trendId_idx_9d6f12a4",
+                  "prefix": "trend_reports_trendId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "trendId",
+                  "reportId"
+                ]
+              },
+              "uniques": []
+            },
+            "trends": {
+              "checks": [
+                {
+                  "expression": "\"direction\" IN ('RISING', 'FALLING', 'STABLE')",
+                  "name": "trends_direction_check_5fed441b",
+                  "prefix": "trends_direction_check"
+                }
+              ],
+              "columns": {
+                "categoryId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "description": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "direction": {
+                  "codecId": "pg/text@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": "STABLE"
+                  },
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "TrendDirection",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "industry": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "title": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "categoryId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "trends"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "market_categories"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "categoryId"
+                  ],
+                  "name": "trends_categoryId_idx_15c304f2",
+                  "prefix": "trends_categoryId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "direction"
+                  ],
+                  "name": "trends_direction_idx_eb01e2be",
+                  "prefix": "trends_direction_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "industry"
+                  ],
+                  "name": "trends_industry_idx_3b2d9ac8",
+                  "prefix": "trends_industry_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "slug"
+                  ]
+                }
+              ]
+            },
             "uploaded_files": {
               "columns": {
                 "createdAt": {
@@ -2031,6 +2952,11 @@
                   "nullable": false
                 },
                 "reportId": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "researchId": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": true
@@ -2084,6 +3010,23 @@
                     "namespaceId": "public",
                     "tableName": "users"
                   }
+                },
+                {
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "researchId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "uploaded_files"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "research"
+                  }
                 }
               ],
               "indexes": [
@@ -2093,6 +3036,14 @@
                   ],
                   "name": "uploaded_files_reportId_idx_d163019e",
                   "prefix": "uploaded_files_reportId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "researchId"
+                  ],
+                  "name": "uploaded_files_researchId_idx_36f1b4c8",
+                  "prefix": "uploaded_files_researchId_idx",
                   "unique": false
                 },
                 {
@@ -2214,11 +3165,36 @@
                 "ARCHIVED"
               ]
             },
+            "ResearchStatus": {
+              "kind": "valueSet",
+              "values": [
+                "DRAFT",
+                "PUBLISHED",
+                "ARCHIVED"
+              ]
+            },
+            "ResearchType": {
+              "kind": "valueSet",
+              "values": [
+                "ARTICLE",
+                "CASE_STUDY",
+                "WHITEPAPER",
+                "COMMENTARY"
+              ]
+            },
             "Role": {
               "kind": "valueSet",
               "values": [
                 "USER",
                 "ADMIN"
+              ]
+            },
+            "TrendDirection": {
+              "kind": "valueSet",
+              "values": [
+                "RISING",
+                "FALLING",
+                "STABLE"
               ]
             }
           }
@@ -2227,10 +3203,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d134af4334c60b05f76ffcc3aed3db9019b2e860917e938b3decb1a53e99d808"
+    "storageHash": "0836d21710811b22aba7c776719bbb1c9df5c4ad7e686c8167a09d3b866e22b8"
   },
   "execution": {
-    "executionHash": "1dd5d4bd1bc41c4cc80a279542920fa7233490522bfd9bc01ba9f0d189c0d4c8",
+    "executionHash": "185ef0566c71190199ed42bc311669f7f67a29b40f1d76de0a96007cd1bf520a",
     "mutations": {
       "defaults": [
         {
@@ -2307,7 +3283,29 @@
           "ref": {
             "column": "id",
             "namespace": "public",
+            "table": "research"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
             "table": "search_index_terms"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "uuidv4",
+            "kind": "generator"
+          },
+          "ref": {
+            "column": "id",
+            "namespace": "public",
+            "table": "trends"
           }
         },
         {

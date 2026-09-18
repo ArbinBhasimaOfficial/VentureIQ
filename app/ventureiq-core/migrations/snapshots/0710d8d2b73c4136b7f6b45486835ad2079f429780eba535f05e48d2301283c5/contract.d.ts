@@ -34,9 +34,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'0836d21710811b22aba7c776719bbb1c9df5c4ad7e686c8167a09d3b866e22b8'>;
+  StorageHashBase<'0710d8d2b73c4136b7f6b45486835ad2079f429780eba535f05e48d2301283c5'>;
 export type ExecutionHash =
-  ExecutionHashBase<'185ef0566c71190199ed42bc311669f7f67a29b40f1d76de0a96007cd1bf520a'>;
+  ExecutionHashBase<'2ce43cfc9cb93c8778b4e1117593b9bd00493a5fa6cd759c1cb2a61f31958503'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -301,19 +301,6 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
-    readonly Research: {
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly title: CodecTypes['pg/text@1']['output'];
-      readonly slug: CodecTypes['pg/text@1']['output'];
-      readonly summary: CodecTypes['pg/text@1']['output'];
-      readonly content: CodecTypes['pg/text@1']['output'];
-      readonly type: 'ARTICLE' | 'CASE_STUDY' | 'WHITEPAPER' | 'COMMENTARY';
-      readonly status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-      readonly categoryId: CodecTypes['pg/text@1']['output'] | null;
-      readonly authorId: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    };
     readonly SearchDocumentStats: {
       readonly documentId: CodecTypes['pg/text@1']['output'];
       readonly documentType: CodecTypes['pg/text@1']['output'];
@@ -352,7 +339,6 @@ export type FieldOutputTypes = {
       readonly reportId: CodecTypes['pg/text@1']['output'] | null;
       readonly uploadedById: CodecTypes['pg/text@1']['output'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly researchId: CodecTypes['pg/text@1']['output'] | null;
     };
     readonly User: {
       readonly id: CodecTypes['pg/text@1']['output'];
@@ -427,19 +413,6 @@ export type FieldInputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
-    readonly Research: {
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly title: CodecTypes['pg/text@1']['input'];
-      readonly slug: CodecTypes['pg/text@1']['input'];
-      readonly summary: CodecTypes['pg/text@1']['input'];
-      readonly content: CodecTypes['pg/text@1']['input'];
-      readonly type: 'ARTICLE' | 'CASE_STUDY' | 'WHITEPAPER' | 'COMMENTARY';
-      readonly status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-      readonly categoryId: CodecTypes['pg/text@1']['input'] | null;
-      readonly authorId: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-    };
     readonly SearchDocumentStats: {
       readonly documentId: CodecTypes['pg/text@1']['input'];
       readonly documentType: CodecTypes['pg/text@1']['input'];
@@ -478,7 +451,6 @@ export type FieldInputTypes = {
       readonly reportId: CodecTypes['pg/text@1']['input'] | null;
       readonly uploadedById: CodecTypes['pg/text@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly researchId: CodecTypes['pg/text@1']['input'] | null;
     };
     readonly User: {
       readonly id: CodecTypes['pg/text@1']['input'];
@@ -553,19 +525,6 @@ export type StorageColumnTypes = {
       readonly title: CodecTypes['pg/text@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     };
-    readonly research: {
-      readonly authorId: CodecTypes['pg/text@1']['output'];
-      readonly categoryId: CodecTypes['pg/text@1']['output'] | null;
-      readonly content: CodecTypes['pg/text@1']['output'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/text@1']['output'];
-      readonly slug: CodecTypes['pg/text@1']['output'];
-      readonly status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-      readonly summary: CodecTypes['pg/text@1']['output'];
-      readonly title: CodecTypes['pg/text@1']['output'];
-      readonly type: 'ARTICLE' | 'CASE_STUDY' | 'WHITEPAPER' | 'COMMENTARY';
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    };
     readonly search_document_stats: {
       readonly documentId: CodecTypes['pg/text@1']['output'];
       readonly documentType: CodecTypes['pg/text@1']['output'];
@@ -601,7 +560,6 @@ export type StorageColumnTypes = {
       readonly originalName: CodecTypes['pg/text@1']['output'];
       readonly path: CodecTypes['pg/text@1']['output'];
       readonly reportId: CodecTypes['pg/text@1']['output'] | null;
-      readonly researchId: CodecTypes['pg/text@1']['output'] | null;
       readonly size: CodecTypes['pg/int4@1']['output'];
       readonly storedName: CodecTypes['pg/text@1']['output'];
       readonly uploadedById: CodecTypes['pg/text@1']['output'];
@@ -679,19 +637,6 @@ export type StorageColumnInputTypes = {
       readonly title: CodecTypes['pg/text@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
     };
-    readonly research: {
-      readonly authorId: CodecTypes['pg/text@1']['input'];
-      readonly categoryId: CodecTypes['pg/text@1']['input'] | null;
-      readonly content: CodecTypes['pg/text@1']['input'];
-      readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/text@1']['input'];
-      readonly slug: CodecTypes['pg/text@1']['input'];
-      readonly status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-      readonly summary: CodecTypes['pg/text@1']['input'];
-      readonly title: CodecTypes['pg/text@1']['input'];
-      readonly type: 'ARTICLE' | 'CASE_STUDY' | 'WHITEPAPER' | 'COMMENTARY';
-      readonly updatedAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
-    };
     readonly search_document_stats: {
       readonly documentId: CodecTypes['pg/text@1']['input'];
       readonly documentType: CodecTypes['pg/text@1']['input'];
@@ -727,7 +672,6 @@ export type StorageColumnInputTypes = {
       readonly originalName: CodecTypes['pg/text@1']['input'];
       readonly path: CodecTypes['pg/text@1']['input'];
       readonly reportId: CodecTypes['pg/text@1']['input'] | null;
-      readonly researchId: CodecTypes['pg/text@1']['input'] | null;
       readonly size: CodecTypes['pg/int4@1']['input'];
       readonly storedName: CodecTypes['pg/text@1']['input'];
       readonly uploadedById: CodecTypes['pg/text@1']['input'];
@@ -758,9 +702,8 @@ export namespace Models {
     alerts: public_Alert[];
     files: public_UploadedFile[];
     reports: public_MarketReport[];
-    research: public_Research[];
     subscriptions: public_AlertSubscription[];
-    readonly [RelationKeys]?: 'alerts' | 'files' | 'reports' | 'research' | 'subscriptions';
+    readonly [RelationKeys]?: 'alerts' | 'files' | 'reports' | 'subscriptions';
   };
   export type public_MarketCategory = {
     id: CodecTypes['pg/text@1']['output'];
@@ -771,10 +714,9 @@ export namespace Models {
     updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
     companies: public_Company[];
     reports: public_MarketReport[];
-    research: public_Research[];
     subscriptions: public_AlertSubscription[];
     trends: public_Trend[];
-    readonly [RelationKeys]?: 'companies' | 'reports' | 'research' | 'subscriptions' | 'trends';
+    readonly [RelationKeys]?: 'companies' | 'reports' | 'subscriptions' | 'trends';
   };
   export type public_MarketReport = {
     id: CodecTypes['pg/text@1']['output'];
@@ -869,11 +811,9 @@ export namespace Models {
     reportId: CodecTypes['pg/text@1']['output'] | null;
     uploadedById: CodecTypes['pg/text@1']['output'];
     createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    researchId: CodecTypes['pg/text@1']['output'] | null;
     report: public_MarketReport | null;
-    research: public_Research | null;
     uploadedBy: public_User;
-    readonly [RelationKeys]?: 'report' | 'research' | 'uploadedBy';
+    readonly [RelationKeys]?: 'report' | 'uploadedBy';
   };
   export type public_Trend = {
     id: CodecTypes['pg/text@1']['output'];
@@ -896,23 +836,6 @@ export namespace Models {
     trend: public_Trend;
     readonly [RelationKeys]?: 'report' | 'trend';
   };
-  export type public_Research = {
-    id: CodecTypes['pg/text@1']['output'];
-    title: CodecTypes['pg/text@1']['output'];
-    slug: CodecTypes['pg/text@1']['output'];
-    summary: CodecTypes['pg/text@1']['output'];
-    content: CodecTypes['pg/text@1']['output'];
-    type: 'ARTICLE' | 'CASE_STUDY' | 'WHITEPAPER' | 'COMMENTARY';
-    status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
-    categoryId: CodecTypes['pg/text@1']['output'] | null;
-    authorId: CodecTypes['pg/text@1']['output'];
-    createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    updatedAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    author: public_User;
-    category: public_MarketCategory | null;
-    files: public_UploadedFile[];
-    readonly [RelationKeys]?: 'author' | 'category' | 'files';
-  };
 }
 
 export declare const models: {
@@ -929,7 +852,6 @@ export declare const models: {
     UploadedFile: Models.public_UploadedFile;
     Trend: Models.public_Trend;
     TrendReport: Models.public_TrendReport;
-    Research: Models.public_Research;
   };
 };
 
@@ -1429,129 +1351,6 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly research: {
-              columns: {
-                readonly id: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly title: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly slug: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly summary: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly content: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly type: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'ARTICLE'>;
-                  };
-                };
-                readonly status: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'literal';
-                    readonly value: DefaultLiteralValue<'pg/text@1', 'DRAFT'>;
-                  };
-                };
-                readonly categoryId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
-                readonly authorId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly createdAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-                readonly updatedAt: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['slug'] }];
-              indexes: readonly [
-                {
-                  readonly name: 'research_categoryId_idx_15c304f2';
-                  readonly prefix: 'research_categoryId_idx';
-                  readonly columns: readonly ['categoryId'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'research_status_idx_e98638ab';
-                  readonly prefix: 'research_status_idx';
-                  readonly columns: readonly ['status'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'research_type_idx_b6b604ea';
-                  readonly prefix: 'research_type_idx';
-                  readonly columns: readonly ['type'];
-                  readonly unique: false;
-                },
-                {
-                  readonly name: 'research_authorId_idx_e47547ed';
-                  readonly prefix: 'research_authorId_idx';
-                  readonly columns: readonly ['authorId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'research';
-                    readonly columns: readonly ['categoryId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'market_categories';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'research';
-                    readonly columns: readonly ['authorId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'users';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly search_document_stats: {
               columns: {
                 readonly documentId: {
@@ -1832,21 +1631,10 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                 };
-                readonly researchId: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: true;
-                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['storedName'] }];
               indexes: readonly [
-                {
-                  readonly name: 'uploaded_files_researchId_idx_36f1b4c8';
-                  readonly prefix: 'uploaded_files_researchId_idx';
-                  readonly columns: readonly ['researchId'];
-                  readonly unique: false;
-                },
                 {
                   readonly name: 'uploaded_files_reportId_idx_d163019e';
                   readonly prefix: 'uploaded_files_reportId_idx';
@@ -1882,18 +1670,6 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'users';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'uploaded_files';
-                    readonly columns: readonly ['researchId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'research';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1963,14 +1739,6 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
             };
-            readonly ResearchStatus: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['DRAFT', 'PUBLISHED', 'ARCHIVED'];
-            };
-            readonly ResearchType: {
-              readonly kind: 'valueSet';
-              readonly values: readonly ['ARTICLE', 'CASE_STUDY', 'WHITEPAPER', 'COMMENTARY'];
-            };
             readonly Role: {
               readonly kind: 'valueSet';
               readonly values: readonly ['USER', 'ADMIN'];
@@ -2023,7 +1791,6 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'TrendReport';
     };
-    readonly research: { readonly namespace: 'public' & NamespaceId; readonly model: 'Research' };
   };
   readonly domain: {
     readonly namespaces: {
@@ -2362,17 +2129,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['categoryId'];
                 };
               };
-              readonly research: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Research';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['categoryId'];
-                };
-              };
               readonly subscriptions: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2545,111 +2301,6 @@ type ContractBase = Omit<
                 readonly status: { readonly column: 'status' };
                 readonly industry: { readonly column: 'industry' };
                 readonly region: { readonly column: 'region' };
-                readonly categoryId: { readonly column: 'categoryId' };
-                readonly authorId: { readonly column: 'authorId' };
-                readonly createdAt: { readonly column: 'createdAt' };
-                readonly updatedAt: { readonly column: 'updatedAt' };
-              };
-            };
-          };
-          readonly Research: {
-            readonly fields: {
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly title: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly slug: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly summary: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly content: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly type: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly status: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly categoryId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly authorId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly createdAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
-              readonly updatedAt: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
-            };
-            readonly relations: {
-              readonly author: {
-                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['authorId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly category: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'MarketCategory';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['categoryId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly files: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'UploadedFile';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['researchId'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'research';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly id: { readonly column: 'id' };
-                readonly title: { readonly column: 'title' };
-                readonly slug: { readonly column: 'slug' };
-                readonly summary: { readonly column: 'summary' };
-                readonly content: { readonly column: 'content' };
-                readonly type: { readonly column: 'type' };
-                readonly status: { readonly column: 'status' };
                 readonly categoryId: { readonly column: 'categoryId' };
                 readonly authorId: { readonly column: 'authorId' };
                 readonly createdAt: { readonly column: 'createdAt' };
@@ -2900,10 +2551,6 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
-              readonly researchId: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
             };
             readonly relations: {
               readonly report: {
@@ -2915,18 +2562,6 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['reportId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-              readonly research: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Research';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: true;
-                readonly on: {
-                  readonly localFields: readonly ['researchId'];
                   readonly targetFields: readonly ['id'];
                 };
               };
@@ -2953,7 +2588,6 @@ type ContractBase = Omit<
                 readonly reportId: { readonly column: 'reportId' };
                 readonly uploadedById: { readonly column: 'uploadedById' };
                 readonly createdAt: { readonly column: 'createdAt' };
-                readonly researchId: { readonly column: 'researchId' };
               };
             };
           };
@@ -3032,17 +2666,6 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['authorId'];
                 };
               };
-              readonly research: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Research';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['authorId'];
-                };
-              };
               readonly subscriptions: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3080,23 +2703,6 @@ type ContractBase = Omit<
             ];
           };
           readonly ReportStatus: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'DRAFT'; readonly value: 'DRAFT' },
-              { readonly name: 'PUBLISHED'; readonly value: 'PUBLISHED' },
-              { readonly name: 'ARCHIVED'; readonly value: 'ARCHIVED' },
-            ];
-          };
-          readonly ResearchType: {
-            readonly codecId: 'pg/text@1';
-            readonly members: readonly [
-              { readonly name: 'ARTICLE'; readonly value: 'ARTICLE' },
-              { readonly name: 'CASE_STUDY'; readonly value: 'CASE_STUDY' },
-              { readonly name: 'WHITEPAPER'; readonly value: 'WHITEPAPER' },
-              { readonly name: 'COMMENTARY'; readonly value: 'COMMENTARY' },
-            ];
-          };
-          readonly ResearchStatus: {
             readonly codecId: 'pg/text@1';
             readonly members: readonly [
               { readonly name: 'DRAFT'; readonly value: 'DRAFT' },
@@ -3183,14 +2789,6 @@ type ContractBase = Omit<
           readonly ref: {
             readonly namespace: 'public';
             readonly table: 'market_reports';
-            readonly column: 'id';
-          };
-          readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };
-        },
-        {
-          readonly ref: {
-            readonly namespace: 'public';
-            readonly table: 'research';
             readonly column: 'id';
           };
           readonly onCreate: { readonly kind: 'generator'; readonly id: 'uuidv4' };

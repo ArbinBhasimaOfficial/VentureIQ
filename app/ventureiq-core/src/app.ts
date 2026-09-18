@@ -16,6 +16,8 @@ import analyticsRoutes from "./modules/analytics/analytic.routes.js";
 import { AppError } from "./utils/AppError.js";
 import uploadRoutes from "./modules/uploads/upload.route.js";
 import { requestLogger } from "./middleware/requestlogger.middleware.js";
+import trendRoutes from "./modules/trends/trends.routes.js";
+import researchRoutes from "./modules/research/research.routes.js";
 
 import {
   notFoundHandler,
@@ -69,7 +71,7 @@ app.get("/", (_req, res) => {
 app.use("/api/v1/auth", authRouter);
 
 app.use("/api/v1/categories", categoryRoutes);
-
+app.use("/api/v1/trends", trendRoutes);
 app.use("/api/v1/reports", reportRoutes);
 
 app.use("/api/v1/datasets", datasetRoutes);
@@ -87,7 +89,7 @@ app.use("/api/alerts", alertRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/api/analytics", analyticsRoutes);
-
+app.use("/api/v1/research", researchRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
