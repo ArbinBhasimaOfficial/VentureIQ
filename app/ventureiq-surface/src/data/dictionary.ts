@@ -46,7 +46,7 @@ export const dictionary = {
     heroHeadingSub: "next in your",
     heroMarket: "market",
     heroDescription:
-      "Nexus Core equips ambitious brands with real time consumer data, trend analysis, and predictive intelligence to act decisively and lead with confidence.",
+      "VentureIQ equips ambitious brands with real time consumer data, trend analysis, and predictive intelligence to act decisively and lead with confidence.",
     statBrands: "Brands optimized",
     statTrends: "New Trends/mo",
     statRetention: "Client retention",

@@ -19,7 +19,7 @@ export async function searchDocuments(
   types: SearchResultType[] = ["REPORT", "TREND", "RESEARCH"],
   limit = 8,
 ) {
-  const response = await apiClient.get<SearchResponse>("/api/search", {
+  const response = await apiClient.get<SearchResponse>("/search", {
     params: {
       q: query,
       limit,
