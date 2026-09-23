@@ -1,31 +1,23 @@
-import apiClient from "./client";
-
+// src/lib/api/search.ts
 export type SearchResultType = "REPORT" | "TREND" | "RESEARCH";
 
-export type SearchResult = {
-  resultType: SearchResultType;
-  document: Record<string, unknown>;
-  relevanceScore: number;
-};
+export async function searchDocuments(query: string, types: SearchResultType[]) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:1570";
 
-export type SearchResponse = {
-  status: string;
-  data: SearchResult[];
-  cached: boolean;
-};
-
-export async function searchDocuments(
-  query: string,
-  types: SearchResultType[] = ["REPORT", "TREND", "RESEARCH"],
-  limit = 8,
-) {
-  const response = await apiClient.get<SearchResponse>("/search", {
-    params: {
-      q: query,
-      limit,
-      types: types.join(","),
-    },
+  const params = new URLSearchParams({
+    q: query,
+    limit: "8",
   });
 
-  return response.data;
+  if (types.length > 0) {
+    params.append("types", types.join(",")); // Sends ?types=REPORT,TREND,RESEARCH
+  }
+
+  const res = await fetch(`${baseUrl}/api/v1/search?${params.toString()}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch search results");
+  }
+
+  return res.json();
 }

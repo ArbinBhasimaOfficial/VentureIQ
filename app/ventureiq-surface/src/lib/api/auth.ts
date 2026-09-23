@@ -29,7 +29,7 @@ export type AuthResponse = {
 };
 
 export async function login(input: LoginInput): Promise<AuthResponse> {
-  const response = await apiClient.post<AuthResponse>("/auth/login", input);
+  const response = await apiClient.post<AuthResponse>("api/v1/auth/login", input);
 
   return response.data;
 }
@@ -37,7 +37,7 @@ export async function login(input: LoginInput): Promise<AuthResponse> {
 export async function register(
   input: Omit<RegisterInput, "confirmPassword">,
 ): Promise<AuthResponse> {
-  const response = await apiClient.post<AuthResponse>("/auth/register", input);
+  const response = await apiClient.post<AuthResponse>("api/v1/auth/register", input);
 
   return response.data;
 }
@@ -49,7 +49,7 @@ export async function getMe(): Promise<{
   const response = await apiClient.get<{
     status: string;
     data: AuthUser;
-  }>("/auth/me");
+  }>("api/v1/auth/me");
 
   return response.data;
 }

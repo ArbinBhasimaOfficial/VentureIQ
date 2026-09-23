@@ -1,11 +1,25 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ChevronDown, FileText, FlaskConical, Search, TrendingUp, X } from "lucide-react";
+import {
+  ChevronDown,
+  FileText,
+  FlaskConical,
+  Search,
+  TrendingUp,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useDeferredValue, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { searchDocuments, type SearchResultType } from "@/lib/api/search";
+
+export interface SearchResultItem {
+  resultType: SearchResultType;
+  relevanceScore: number;
+  document: Record<string, unknown>;
+}
 
 const SEARCH_TYPES: { value: SearchResultType; label: string }[] = [
   { value: "REPORT", label: "Reports" },
@@ -13,14 +27,14 @@ const SEARCH_TYPES: { value: SearchResultType; label: string }[] = [
   { value: "RESEARCH", label: "Research" },
 ];
 
-const resultIcons = {
+const resultIcons: Record<SearchResultType, LucideIcon> = {
   REPORT: FileText,
   TREND: TrendingUp,
   RESEARCH: FlaskConical,
 };
 
 function getDocumentText(document: Record<string, unknown>, key: string) {
-  return typeof document[key] === "string" ? document[key] : "";
+  return typeof document[key] === "string" ? (document[key] as string) : "";
 }
 
 export default function DashboardSearch() {
@@ -141,7 +155,7 @@ export default function DashboardSearch() {
             </p>
           )}
           {!search.isFetching &&
-            search.data?.data.map((result) => {
+            search.data?.data.map((result: SearchResultItem) => {
               const Icon = resultIcons[result.resultType];
               const title =
                 getDocumentText(result.document, "title") ||

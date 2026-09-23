@@ -194,9 +194,7 @@ export default function AdminUsersPage() {
 
       {activeMutation.isError && (
         <div className="border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-300 flex items-center justify-between">
-          <span>
-            Failed to update the <p>User&apos;s permissions updated</p>
-          </span>
+          <span>Failed to update the user&apos;s account status.</span>
           <button
             type="button"
             onClick={() => activeMutation.reset()}

@@ -79,9 +79,7 @@ app.use("/api/v1/reports", reportRoutes);
 app.use("/api/v1/datasets", datasetRoutes);
 
 app.use("/api/v1/uploads", uploadRoutes);
-
-app.use("/api/search", searchRoutes);
-
+app.use("/api/v1/search", searchRoutes);
 app.use("/api/ingest", ingestionRoutes);
 
 app.use("/api/companies", companyRoutes);

@@ -1,5 +1,3 @@
-// src/lib/api/dashboard.ts
-
 import apiClient from "./client";
 
 export type DashboardReport = {
@@ -79,12 +77,8 @@ type AlertsResponse = {
   pagination: { page: number; limit: number; total: number; totalPages: number };
 };
 
-/* ==========================================================================
-   GETTERS
-   ========================================================================== */
-
 export async function getDashboardReports(page = 1, limit = 12, industry?: string) {
-  const response = await apiClient.get<ReportsResponse>("/reports", {
+  const response = await apiClient.get<ReportsResponse>("/api/v1/reports", {
     params: { page, limit, ...(industry ? { industry } : {}) },
   });
 
@@ -93,20 +87,20 @@ export async function getDashboardReports(page = 1, limit = 12, industry?: strin
 
 export async function getDashboardReport(reportId: string) {
   const response = await apiClient.get<{ status: string; data: DashboardReport }>(
-    `/reports/${reportId}`,
+    `/api/v1/reports/${reportId}`,
   );
 
   return response.data.data;
 }
 
 export async function getDashboardCategories() {
-  const response = await apiClient.get<{ data: DashboardCategory[] }>("/categories");
+  const response = await apiClient.get<{ data: DashboardCategory[] }>("/api/v1/categories");
 
   return response.data.data;
 }
 
 export async function getDashboardTrends() {
-  const response = await apiClient.get<TrendsResponse>("/trends", {
+  const response = await apiClient.get<TrendsResponse>("/api/v1/trends", {
     params: { page: 1, limit: 50 },
   });
 
@@ -114,7 +108,7 @@ export async function getDashboardTrends() {
 }
 
 export async function getDashboardCompanies() {
-  const response = await apiClient.get<CompaniesResponse>("/companies", {
+  const response = await apiClient.get<CompaniesResponse>("/api/companies", {
     params: { page: 1, limit: 50 },
   });
 
@@ -125,7 +119,7 @@ export async function getReportDatasets(reportId: string) {
   const response = await apiClient.get<{
     datasets: DashboardDataset[];
     pagination: { page: number; limit: number; count: number };
-  }>("/datasets", {
+  }>("/api/v1/datasets", {
     params: { page: 1, limit: 50, reportId },
   });
 
@@ -133,48 +127,9 @@ export async function getReportDatasets(reportId: string) {
 }
 
 export async function getDashboardAlerts() {
-  const response = await apiClient.get<AlertsResponse>("/alerts", {
+  const response = await apiClient.get<AlertsResponse>("/api/alerts", {
     params: { page: 1, limit: 5, unreadOnly: true },
   });
-
-  return response.data;
-}
-
-/* ==========================================================================
-   ADMIN MUTATIONS
-   ========================================================================== */
-
-export async function createMarketReport(data: {
-  title: string;
-  summary: string;
-  industry: string;
-  region?: string;
-  categoryId?: string;
-}) {
-  // Correct path matches app.use("/api/v1/reports", reportRoutes)
-  const response = await apiClient.post<{ data: DashboardReport }>("/reports", data);
-  return response.data;
-}
-
-export async function uploadMarketReportPdf(id: string, file: File) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await apiClient.post<{ message: string; pdfUrl: string }>(
-    `/reports/${id}/pdf`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    },
-  );
-
-  return response.data;
-}
-
-export async function removeMarketReport(id: string) {
-  const response = await apiClient.delete<{ success: boolean; message: string }>(`/reports/${id}`);
 
   return response.data;
 }
