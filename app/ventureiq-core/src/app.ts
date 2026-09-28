@@ -80,15 +80,15 @@ app.use("/api/v1/datasets", datasetRoutes);
 
 app.use("/api/v1/uploads", uploadRoutes);
 app.use("/api/v1/search", searchRoutes);
-app.use("/api/ingest", ingestionRoutes);
+app.use("/api/v1/ingest", ingestionRoutes);
 
-app.use("/api/companies", companyRoutes);
+app.use("/api/v1/companies", companyRoutes);
 
-app.use("/api/alerts", alertRoutes);
+app.use("/api/v1/alerts", alertRoutes);
 
-app.use("/api/admin", adminRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
-app.use("/api/analytics", analyticsRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/research", researchRoutes);
 
 app.use(notFoundHandler);

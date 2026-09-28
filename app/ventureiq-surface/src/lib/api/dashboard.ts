@@ -108,7 +108,7 @@ export async function getDashboardTrends() {
 }
 
 export async function getDashboardCompanies() {
-  const response = await apiClient.get<CompaniesResponse>("/api/companies", {
+  const response = await apiClient.get<CompaniesResponse>("/api/v1/companies", {
     params: { page: 1, limit: 50 },
   });
 
@@ -127,7 +127,7 @@ export async function getReportDatasets(reportId: string) {
 }
 
 export async function getDashboardAlerts() {
-  const response = await apiClient.get<AlertsResponse>("/api/alerts", {
+  const response = await apiClient.get<AlertsResponse>("/api/v1/alerts", {
     params: { page: 1, limit: 5, unreadOnly: true },
   });
 

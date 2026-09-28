@@ -201,7 +201,7 @@ export default function AdminUsersPage() {
       {/* Role Mutation Error */}
       {roleMutation.isError && (
         <div className="flex items-center justify-between border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-300">
-          <span>Failed to update the user&apos;s role.</span>
+          <span>Failed to update the users role.</span>
 
           <button
             type="button"
@@ -216,7 +216,7 @@ export default function AdminUsersPage() {
       {/* Active Mutation Error */}
       {activeMutation.isError && (
         <div className="flex items-center justify-between border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-300">
-          <span>Failed to update the user&apos;s account status.</span>
+          <span>Failed to update the users account status.</span>
 
           <button
             type="button"
