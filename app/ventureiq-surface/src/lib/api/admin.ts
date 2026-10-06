@@ -15,12 +15,12 @@ export async function getAdminUsers(
   const response = await apiClient.get<{
     users: AdminUser[];
     pagination: { page: number; limit: number; total: number; totalPages: number };
-  }>("/admin/users", { params });
+  }>("/v1/admin/users", { params });
   return response.data;
 }
 
 export async function updateAdminUserRole(id: string, role: AdminUser["role"]) {
-  const response = await apiClient.patch<{ data: AdminUser }>(`/admin/users/${id}/role`, {
+  const response = await apiClient.patch<{ data: AdminUser }>(`/v1/admin/users/${id}/role`, {
     role,
   });
   return response.data.data;
@@ -28,22 +28,22 @@ export async function updateAdminUserRole(id: string, role: AdminUser["role"]) {
 
 export async function setAdminUserActive(id: string, active: boolean) {
   const response = await apiClient.patch<{ data: AdminUser }>(
-    `/admin/users/${id}/${active ? "reactivate" : "deactivate"}`,
+    `/v1/admin/users/${id}/${active ? "reactivate" : "deactivate"}`,
   );
   return response.data.data;
 }
 
 export async function getAdminAnalytics() {
   const [overview, categories, industries, publishing] = await Promise.all([
-    apiClient.get<{ data: Record<string, number> }>("/analytics/overview"),
+    apiClient.get<{ data: Record<string, number> }>("/v1/analytics/overview"),
     apiClient.get<{ data: { categoryName: string; reportCount: number }[] }>(
-      "/analytics/reports-by-category",
+      "/v1/analytics/reports-by-category",
     ),
     apiClient.get<{ data: { industry: string; reportCount: number }[] }>(
-      "/analytics/reports-by-industry",
+      "/v1/analytics/reports-by-industry",
     ),
     apiClient.get<{ data: { month: string; count: number }[] }>(
-      "/analytics/publishing-trend?months=12",
+      "/v1/analytics/publishing-trend?months=12",
     ),
   ]);
 

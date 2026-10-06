@@ -114,7 +114,7 @@ export async function getDashboardTrends() {
 }
 
 export async function getDashboardCompanies() {
-  const response = await apiClient.get<CompaniesResponse>("/companies", {
+  const response = await apiClient.get<CompaniesResponse>("/v1/companies", {
     params: { page: 1, limit: 50 },
   });
 
@@ -133,7 +133,7 @@ export async function getReportDatasets(reportId: string) {
 }
 
 export async function getDashboardAlerts() {
-  const response = await apiClient.get<AlertsResponse>("/alerts", {
+  const response = await apiClient.get<AlertsResponse>("/v1/alerts", {
     params: { page: 1, limit: 5, unreadOnly: true },
   });
 
@@ -160,7 +160,7 @@ export async function uploadMarketReportPdf(id: string, file: File) {
   formData.append("file", file);
 
   const response = await apiClient.post<{ message: string; pdfUrl: string }>(
-    `/admin/reports/${id}/pdf`,
+    `/v1/admin/reports/${id}/pdf`,
     formData,
     {
       headers: {
@@ -174,7 +174,7 @@ export async function uploadMarketReportPdf(id: string, file: File) {
 
 export async function removeMarketReport(id: string) {
   const response = await apiClient.delete<{ success: boolean; message: string }>(
-    `/admin/reports/${id}`,
+    `/v1/admin/reports/${id}`,
   );
 
   return response.data;
