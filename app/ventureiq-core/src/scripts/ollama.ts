@@ -1,8 +1,32 @@
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://localhost:11434";
-export const EMBED_MODEL = process.env.OLLAMA_EMBED_MODEL || "nomic-embed-text";
-export const CHAT_MODEL = process.env.OLLAMA_CHAT_MODEL || "llama3";
 
+const EMBED_MODEL = process.env.OLLAMA_EMBED_MODEL || "nomic-embed-text";
+const CHAT_MODEL = process.env.OLLAMA_CHAT_MODEL || "llama3";
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_EMBED_MODEL = process.env.OPENAI_EMBED_MODEL || "text-embedding-3-small";
+const OPENAI_CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini";
+
+// Embed via OpenAI when a key is configured, otherwise via local Ollama.
 export async function embed(text: string): Promise<number[]> {
+  if (OPENAI_API_KEY) {
+    const res = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({ model: OPENAI_EMBED_MODEL, input: text, dimensions: 768 }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`OpenAI embeddings failed: ${res.status} ${await res.text()}`);
+    }
+
+    const data = (await res.json()) as { data: { embedding: number[] }[] };
+    return data.data[0].embedding;
+  }
+
   const res = await fetch(`${OLLAMA_URL}/api/embeddings`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -18,6 +42,28 @@ export async function embed(text: string): Promise<number[]> {
 }
 
 export async function generate(prompt: string): Promise<string> {
+  if (OPENAI_API_KEY) {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: OPENAI_CHAT_MODEL,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.2,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`OpenAI chat failed: ${res.status} ${await res.text()}`);
+    }
+
+    const data = (await res.json()) as { choices: { message: { content: string } }[] };
+    return data.choices[0].message.content;
+  }
+
   const res = await fetch(`${OLLAMA_URL}/api/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
