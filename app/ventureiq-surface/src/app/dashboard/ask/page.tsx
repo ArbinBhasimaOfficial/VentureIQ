@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles, Send, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 import { askRag } from "@/lib/api/rag";
+import { useAskAIStore } from "@/store/ask-ai.store";
 
 function sourceHref(source: { sourceType: string; sourceId: string }): string {
   switch (source.sourceType) {
@@ -21,9 +21,18 @@ function sourceHref(source: { sourceType: string; sourceId: string }): string {
 }
 
 export default function AskPage() {
-  const [question, setQuestion] = useState("");
+  const { question, answer, error, setQuestion, setAnswer, setError } = useAskAIStore();
+
   const ask = useMutation({
     mutationFn: (q: string) => askRag(q),
+    onSuccess: (data) => {
+      setAnswer(data);
+      setError(false);
+    },
+    onError: () => {
+      setAnswer(null);
+      setError(true);
+    },
   });
 
   const submit = (e: React.FormEvent) => {
@@ -70,25 +79,25 @@ export default function AskPage() {
         </button>
       </form>
 
-      {ask.isError && (
+      {error && (
         <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
           The assistant is unavailable right now. Check that the Core API and Ollama are running.
         </p>
       )}
 
-      {ask.isSuccess && (
+      {answer && (
         <section className="space-y-5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-6">
           <div className="flex items-center gap-2 text-cyan-400">
             <Sparkles className="h-4 w-4" />
             <h2 className="text-sm font-bold uppercase tracking-widest">Answer</h2>
           </div>
-          <p className="whitespace-pre-wrap text-sm leading-7 text-gray-200">{ask.data.answer}</p>
+          <p className="whitespace-pre-wrap text-sm leading-7 text-gray-200">{answer.answer}</p>
 
-          {ask.data.sources.length > 0 && (
+          {answer.sources.length > 0 && (
             <div className="border-t border-white/[0.06] pt-4">
               <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Sources</h3>
               <ul className="mt-3 space-y-2">
-                {ask.data.sources.map((source) => (
+                {answer.sources.map((source) => (
                   <li
                     key={`${source.sourceType}-${source.sourceId}`}
                     className="flex items-center justify-between text-sm"
