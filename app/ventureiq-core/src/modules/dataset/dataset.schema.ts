@@ -15,7 +15,7 @@ export const createDatasetSchema = z.object({
 
   source: z.string().trim().optional(),
 
-  reportId: z.string().uuid("Invalid report ID"),
+  reportId: z.string().min(1),
 });
 
 export const updateDatasetSchema = createDatasetSchema.partial();
@@ -25,7 +25,7 @@ export const listDatasetsQuerySchema = z.object({
 
   limit: z.coerce.number().int().min(1).max(50).default(10),
 
-  reportId: z.string().uuid().optional(),
+  reportId: z.string().min(1).optional(),
 });
 
 export type CreateDatasetInput = z.infer<typeof createDatasetSchema>;
