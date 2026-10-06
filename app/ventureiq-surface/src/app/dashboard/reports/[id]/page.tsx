@@ -7,7 +7,8 @@ import { useParams } from "next/navigation";
 
 import ReportCharts from "@/components/dashboard/ReportCharts";
 import { getDashboardCategories, getDashboardReport, getReportDatasets } from "@/lib/api/dashboard";
-import { getFilesForReport, downloadUpload } from "@/lib/api/uploads";
+import { getFilesForReport } from "@/lib/api/uploads";
+import PdfLink from "@/components/dashboard/PdfLink";
 import { demoReportData, makeDownloadPayload, normalizeReportData } from "@/lib/report-demo-data";
 
 function formatDate(value: string) {
@@ -149,17 +150,7 @@ export default function ReportDetailPage() {
           </h3>
           <ul className="mt-4 space-y-2">
             {pdfFiles.map((file) => (
-              <li key={file.id}>
-                <button
-                  onClick={() => downloadUpload(file.id, file.originalName)}
-                  className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
-                >
-                  <FileText className="h-4 w-4" /> {file.originalName}
-                  <span className="text-xs text-gray-600">
-                    ({(file.size / 1024).toFixed(0)} KB)
-                  </span>
-                </button>
-              </li>
+              <PdfLink key={file.id} id={file.id} name={file.originalName} size={file.size} />
             ))}
           </ul>
         </section>

@@ -51,3 +51,8 @@ export async function downloadUpload(id: string, filename: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export async function getPdfUrl(id: string): Promise<string> {
+  const response = await apiClient.get(`/v1/uploads/${id}/download`, { responseType: "blob" });
+  return URL.createObjectURL(response.data);
+}

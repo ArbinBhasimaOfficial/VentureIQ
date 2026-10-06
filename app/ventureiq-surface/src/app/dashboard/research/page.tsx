@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { FileText, FileUp } from "lucide-react";
 
 import { getResearch } from "@/lib/api/research";
-import { getFilesForResearch, downloadUpload } from "@/lib/api/uploads";
+import { getFilesForResearch } from "@/lib/api/uploads";
+import PdfLink from "@/components/dashboard/PdfLink";
 
 function ResearchItem({
   item,
@@ -28,17 +29,7 @@ function ResearchItem({
         {files.data?.length ? (
           <ul className="space-y-2">
             {files.data.map((file) => (
-              <li key={file.id}>
-                <button
-                  onClick={() => downloadUpload(file.id, file.originalName)}
-                  className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
-                >
-                  <FileUp className="h-4 w-4" /> {file.originalName}
-                  <span className="text-xs text-gray-600">
-                    ({(file.size / 1024).toFixed(0)} KB)
-                  </span>
-                </button>
-              </li>
+              <PdfLink key={file.id} id={file.id} name={file.originalName} size={file.size} />
             ))}
           </ul>
         ) : (
