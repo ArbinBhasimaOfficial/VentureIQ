@@ -24,7 +24,7 @@ export async function embed(text: string): Promise<number[]> {
     }
 
     const data = (await res.json()) as { data: { embedding: number[] }[] };
-    return data.data[0].embedding;
+    return data.data[0]?.embedding ?? [];
   }
 
   const res = await fetch(`${OLLAMA_URL}/api/embeddings`, {
@@ -61,7 +61,7 @@ export async function generate(prompt: string): Promise<string> {
     }
 
     const data = (await res.json()) as { choices: { message: { content: string } }[] };
-    return data.choices[0].message.content;
+    return data.choices[0]?.message.content ?? "";
   }
 
   const res = await fetch(`${OLLAMA_URL}/api/generate`, {
