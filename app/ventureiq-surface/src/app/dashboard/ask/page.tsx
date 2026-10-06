@@ -3,8 +3,22 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles, Send, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 import { askRag } from "@/lib/api/rag";
+
+function sourceHref(source: { sourceType: string; sourceId: string }): string {
+  switch (source.sourceType) {
+    case "REPORT":
+      return `/dashboard/reports/${source.sourceId}`;
+    case "TREND":
+      return `/dashboard/markets`;
+    case "RESEARCH":
+      return `/dashboard/reports`;
+    default:
+      return `/dashboard/reports`;
+  }
+}
 
 export default function AskPage() {
   const [question, setQuestion] = useState("");
@@ -79,7 +93,12 @@ export default function AskPage() {
                     key={`${source.sourceType}-${source.sourceId}`}
                     className="flex items-center justify-between text-sm"
                   >
-                    <span className="text-gray-300">{source.title ?? "Untitled"}</span>
+                    <Link
+                      href={sourceHref(source)}
+                      className="text-cyan-400 hover:text-cyan-300 hover:underline"
+                    >
+                      {source.title ?? "Untitled"}
+                    </Link>
                     <span className="text-xs text-gray-600">
                       {source.sourceType} · {(source.score * 100).toFixed(0)}%
                     </span>
