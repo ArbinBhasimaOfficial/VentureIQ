@@ -19,7 +19,9 @@
     "seed:nepal-industry-trends": "tsx src/prisma/seed-nepal-industry-trends.ts",
     "scrape:nepal-reports": "tsx src/prisma/scrape-nepal-reports.ts",
     "import:csv": "tsx src/prisma/import-csv-data.ts",
-    "seed:reports": "tsx src/prisma/seed-reports.ts"
+    "seed:reports": "tsx src/prisma/seed-reports.ts",
+    "rag:setup": "tsx src/scripts/setup-rag.ts",
+    "rag:ingest": "tsx src/scripts/ingest-rag.ts"
   },
   "keywords": [],
   "author": "",
@@ -37,6 +39,7 @@
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
+    "pg": "^8.23.1",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",
     "zod": "^4.6.5"
@@ -48,6 +51,7 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.2.0",
+    "@types/pg": "^8.23.1",
     "nodemon": "^3.1.14",
     "pino-pretty": "^13.1.3",
     "prisma": "8.0.0-rc.15",

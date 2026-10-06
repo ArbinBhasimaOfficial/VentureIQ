@@ -18,6 +18,7 @@ import uploadRoutes from "./modules/uploads/upload.route.js";
 import { requestLogger } from "./middleware/requestlogger.middleware.js";
 import trendRoutes from "./modules/trends/trends.routes.js";
 import researchRoutes from "./modules/research/research.routes.js";
+import ragRoutes from "./modules/rag/rag.routes.js";
 
 import {
   notFoundHandler,
@@ -90,6 +91,8 @@ app.use("/api/v1/admin", adminRoutes);
 
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/research", researchRoutes);
+
+app.use("/api/v1/rag", ragRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
