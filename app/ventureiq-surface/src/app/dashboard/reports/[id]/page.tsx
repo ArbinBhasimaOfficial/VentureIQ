@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 
 import ReportCharts from "@/components/dashboard/ReportCharts";
 import { getDashboardCategories, getDashboardReport, getReportDatasets } from "@/lib/api/dashboard";
+import { getFilesForReport, downloadUpload } from "@/lib/api/uploads";
 import { demoReportData, makeDownloadPayload, normalizeReportData } from "@/lib/report-demo-data";
 
 function formatDate(value: string) {
@@ -32,6 +33,12 @@ export default function ReportDetailPage() {
     queryFn: () => getReportDatasets(reportId),
     enabled: Boolean(reportId),
   });
+  const files = useQuery({
+    queryKey: ["dashboard", "report-files", reportId],
+    queryFn: () => getFilesForReport(reportId),
+    enabled: Boolean(reportId),
+  });
+  const pdfFiles = (files.data ?? []).filter((f) => f.mimeType === "application/pdf");
   const selectedReport = report.data;
   const selectedDataset = datasets.data?.[0];
   const chartData = selectedDataset ? normalizeReportData(selectedDataset.data) : demoReportData;
@@ -134,6 +141,29 @@ export default function ReportDetailPage() {
         </div>
       )}
       <ReportCharts data={chartData} />
+
+      {pdfFiles.length > 0 && (
+        <section className="border border-white/[0.06] bg-white/[0.02] p-5 sm:p-6">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+            Attached PDFs
+          </h3>
+          <ul className="mt-4 space-y-2">
+            {pdfFiles.map((file) => (
+              <li key={file.id}>
+                <button
+                  onClick={() => downloadUpload(file.id, file.originalName)}
+                  className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 hover:underline"
+                >
+                  <FileText className="h-4 w-4" /> {file.originalName}
+                  <span className="text-xs text-gray-600">
+                    ({(file.size / 1024).toFixed(0)} KB)
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }
