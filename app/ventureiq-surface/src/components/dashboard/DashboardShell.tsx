@@ -95,6 +95,9 @@ export default function DashboardShell({ children }: { children: React.ReactNode
             <Link href="/dashboard/reports" className="whitespace-nowrap hover:text-cyan-400">
               Reports
             </Link>
+            <Link href="/dashboard/ask" className="whitespace-nowrap hover:text-cyan-400">
+              Ask AI
+            </Link>
             <Link href="/dashboard/settings" className="whitespace-nowrap hover:text-cyan-400">
               Settings
             </Link>

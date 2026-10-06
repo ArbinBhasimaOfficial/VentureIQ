@@ -3,13 +3,22 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Factory, LayoutDashboard, LineChart, FileStack, Settings, Radio } from "lucide-react";
+import {
+  Factory,
+  LayoutDashboard,
+  LineChart,
+  FileStack,
+  Settings,
+  Sparkles,
+  Radio,
+} from "lucide-react";
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Markets", href: "/dashboard/markets", icon: LineChart },
   { label: "Industries", href: "/dashboard/industries", icon: Factory },
   { label: "Reports", href: "/dashboard/reports", icon: FileStack },
+  { label: "Ask AI", href: "/dashboard/ask", icon: Sparkles },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
