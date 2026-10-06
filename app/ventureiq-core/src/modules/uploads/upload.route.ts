@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   uploadFile,
   getFilesForReport,
+  getFilesForResearch,
   downloadFile,
   removeFile,
 } from "./upload.controller.js";
@@ -22,6 +23,8 @@ router.post(
 );
 
 router.get("/report/:reportId", authenticate, getFilesForReport);
+
+router.get("/research/:researchId", authenticate, getFilesForResearch);
 
 router.get("/:id/download", authenticate, downloadFile);
 

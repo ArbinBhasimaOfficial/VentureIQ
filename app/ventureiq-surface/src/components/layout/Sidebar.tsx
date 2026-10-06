@@ -11,6 +11,7 @@ import {
   Settings,
   Sparkles,
   Radio,
+  FileText,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { label: "Markets", href: "/dashboard/markets", icon: LineChart },
   { label: "Industries", href: "/dashboard/industries", icon: Factory },
   { label: "Reports", href: "/dashboard/reports", icon: FileStack },
+  { label: "Research", href: "/dashboard/research", icon: FileText },
   { label: "Ask AI", href: "/dashboard/ask", icon: Sparkles },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

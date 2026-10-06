@@ -7,6 +7,7 @@ import { AppError } from "../../utils/AppError.js";
 import {
   saveFileRecord,
   listFilesForReport,
+  listFilesForResearch,
   getFileById,
   deleteFile,
 } from "./upload.service.js";
@@ -25,7 +26,12 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
       ? req.body.reportId.trim()
       : undefined;
 
-  const record = await saveFileRecord(req.file, req.user.userId, reportId);
+  const researchId =
+    typeof req.body.researchId === "string" && req.body.researchId.trim()
+      ? req.body.researchId.trim()
+      : undefined;
+
+  const record = await saveFileRecord(req.file, req.user.userId, reportId, researchId);
 
   return res.status(201).json({
     status: "ok",
@@ -42,6 +48,23 @@ export const getFilesForReport = asyncHandler(
     }
 
     const files = await listFilesForReport(reportId);
+
+    return res.status(200).json({
+      status: "ok",
+      data: files,
+    });
+  },
+);
+
+export const getFilesForResearch = asyncHandler(
+  async (req: Request, res: Response) => {
+    const researchId = req.params.researchId;
+
+    if (typeof researchId !== "string" || !researchId.trim()) {
+      throw new AppError("Invalid research ID", 400);
+    }
+
+    const files = await listFilesForResearch(researchId);
 
     return res.status(200).json({
       status: "ok",
