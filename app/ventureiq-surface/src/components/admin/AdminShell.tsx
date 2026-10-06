@@ -12,6 +12,8 @@ import {
   Sparkles,
   Users,
   Waves,
+  FlaskConical,
+  Upload,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -22,6 +24,8 @@ const links = [
   ["Trends", "/admin/trends", Waves],
   ["Categories", "/admin/categories", FolderTree],
   ["Analytics", "/admin/analytics", BarChart3],
+  ["Research", "/admin/research", FlaskConical],
+  ["Uploads", "/admin/uploads", Upload],
 ] as const;
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
