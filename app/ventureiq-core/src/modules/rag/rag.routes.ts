@@ -13,8 +13,8 @@ router.post("/ask", async (req, res, next) => {
 
     const result = await ask(question.trim());
     res.json({ status: "ok", data: result });
-  } catch (err) {
-    next(err);
+  } catch (err: any) {
+    res.status(500).json({ status: "error", message: err?.message ?? "Unknown error" });
   }
 });
 
