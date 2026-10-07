@@ -27,11 +27,13 @@ export async function embedAndStore(source: RagSource): Promise<number> {
     const chunks = chunkText(source.text);
 
     for (let i = 0; i < chunks.length; i++) {
-      const embedding = await embed(chunks[i]);
+      const chunk = chunks[i];
+      if (!chunk) continue;
+      const embedding = await embed(chunk);
       await client.query(
         `INSERT INTO rag_chunks (source_type, source_id, title, content, chunk_index, metadata, embedding)
          VALUES ($1, $2, $3, $4, $5, $6, $7::vector)`,
-        [source.sourceType, source.sourceId, source.title, chunks[i], i, JSON.stringify(source.metadata ?? {}), `[${embedding.join(",")}]`],
+        [source.sourceType, source.sourceId, source.title, chunk, i, JSON.stringify(source.metadata ?? {}), `[${embedding.join(",")}]`],
       );
     }
 
