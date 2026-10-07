@@ -16,6 +16,7 @@ import {
 
 import { AppError } from "../../utils/AppError.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
+import { embedAndStore, removeSource } from "../rag/rag.ingest.js";
 
 // CREATE
 
@@ -31,6 +32,15 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const report = await createReport(parsed.data, req.user.userId);
+
+  // Automatically index the new report for Ask AI (fire-and-forget)
+  embedAndStore({
+    sourceType: "REPORT",
+    sourceId: report.id,
+    title: report.title,
+    text: `${report.title}\n${report.summary}\n${report.content}`,
+    metadata: { industry: report.industry, region: report.region, categoryId: report.categoryId },
+  }).catch((err) => console.error("RAG ingest failed for report", report.id, err));
 
   return res.status(201).json({
     status: "ok",
@@ -93,6 +103,14 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 
   const report = await updateReport(id, parsed.data);
 
+  embedAndStore({
+    sourceType: "REPORT",
+    sourceId: report.id,
+    title: report.title,
+    text: `${report.title}\n${report.summary}\n${report.content}`,
+    metadata: { industry: report.industry, region: report.region, categoryId: report.categoryId },
+  }).catch((err) => console.error("RAG ingest failed for report", report.id, err));
+
   return res.status(200).json({
     status: "ok",
     data: report,
@@ -109,6 +127,7 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   }
 
   await deleteReport(id);
+  removeSource("REPORT", id).catch((err) => console.error("RAG remove failed", id, err));
 
   return res.status(204).send();
 });

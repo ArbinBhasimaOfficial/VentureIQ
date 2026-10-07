@@ -16,6 +16,7 @@ import {
 
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
+import { embedAndStore, removeSource } from "../rag/rag.ingest.js";
 
 /**
  * CREATE RESEARCH
@@ -37,6 +38,14 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const research = await createResearch(parsed.data, req.user.userId);
+
+  embedAndStore({
+    sourceType: "RESEARCH",
+    sourceId: research.id,
+    title: research.title,
+    text: `${research.title}\n${research.summary}\n${research.content}`,
+    metadata: { type: research.type, categoryId: research.categoryId },
+  }).catch((err) => console.error("RAG ingest failed for research", research.id, err));
 
   return res.status(201).json({
     status: "ok",
@@ -112,6 +121,14 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 
   const research = await updateResearch(id, parsed.data);
 
+  embedAndStore({
+    sourceType: "RESEARCH",
+    sourceId: research.id,
+    title: research.title,
+    text: `${research.title}\n${research.summary}\n${research.content}`,
+    metadata: { type: research.type, categoryId: research.categoryId },
+  }).catch((err) => console.error("RAG ingest failed for research", research.id, err));
+
   return res.status(200).json({
     status: "ok",
     data: research,
@@ -129,6 +146,7 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   }
 
   await deleteResearch(id);
+  removeSource("RESEARCH", id).catch((err) => console.error("RAG remove failed", id, err));
 
   return res.status(204).send();
 });
