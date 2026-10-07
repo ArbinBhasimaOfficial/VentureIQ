@@ -53,7 +53,11 @@ export async function getDownloadUrl(url: string): Promise<string> {
       const idx = parts.findIndex((p) => p === "upload");
       const publicId = parts.slice(idx + 2).join("/");
 
-      return private_download_url(publicId.replace(/\.[^.]+$/, ""), publicId.includes(".") ? publicId.split(".").pop() : undefined, { resource_type: "raw" });
+      return private_download_url(
+        publicId.replace(/\.[^.]+$/, ""),
+        publicId.includes(".") ? publicId.split(".").pop()! : "",
+        { resource_type: "raw" },
+      );
     }
 
     return url;
