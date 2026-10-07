@@ -105,13 +105,15 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 
   const dataset = await updateDataset(id, parsed.data);
 
-  embedAndStore({
-    sourceType: "DATASET",
-    sourceId: dataset.id,
-    title: dataset.name,
-    text: `${dataset.name}\n${dataset.description ?? ""}\n${JSON.stringify(dataset.data)}`,
-    metadata: { source: dataset.source, reportId: dataset.reportId },
-  }).catch((err) => console.error("RAG ingest failed for dataset", dataset.id, err));
+  if (dataset) {
+    embedAndStore({
+      sourceType: "DATASET",
+      sourceId: dataset.id,
+      title: dataset.name,
+      text: `${dataset.name}\n${dataset.description ?? ""}\n${JSON.stringify(dataset.data)}`,
+      metadata: { source: dataset.source, reportId: dataset.reportId },
+    }).catch((err) => console.error("RAG ingest failed for dataset", dataset.id, err));
+  }
 
   return res.status(200).json({
     status: "ok",
