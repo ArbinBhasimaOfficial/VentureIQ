@@ -44,5 +44,21 @@ export async function deleteFromCloudinary(urlOrPublicId: string): Promise<void>
 }
 
 export async function getDownloadUrl(url: string): Promise<string> {
-  return url; // Cloudinary secure_url is directly downloadable
+  if (!enabled) return url;
+
+  if (url.startsWith("http") && url.includes("res.cloudinary.com")) {
+    const parts = url.split("/");
+    const idx = parts.findIndex((p) => p === "upload");
+    const publicIdWithExt = parts.slice(idx + 2).join("/");
+    const publicId = publicIdWithExt.replace(/\.[^.]+$/, "");
+
+    return cloudinary.url(publicId, {
+      resource_type: "raw",
+      secure: true,
+      sign_url: true,
+      type: "upload",
+    });
+  }
+
+  return url;
 }
