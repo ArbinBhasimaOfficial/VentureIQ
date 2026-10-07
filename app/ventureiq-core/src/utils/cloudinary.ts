@@ -19,7 +19,7 @@ export async function uploadToCloudinary(localPath: string, publicId: string): P
   if (!enabled) return null;
 
   const result = await cloudinary.uploader.upload(localPath, {
-    resource_type: "raw",
+    resource_type: "auto",
     public_id: publicId,
     folder: "ventureiq",
   });
@@ -47,17 +47,16 @@ export async function getDownloadUrl(url: string): Promise<string> {
   if (!enabled) return url;
 
   if (url.startsWith("http") && url.includes("res.cloudinary.com")) {
-    const parts = url.split("/");
-    const idx = parts.findIndex((p) => p === "upload");
-    const publicIdWithExt = parts.slice(idx + 2).join("/");
-    const publicId = publicIdWithExt.replace(/\.[^.]+$/, "");
+    if (url.includes("/raw/upload/")) {
+      const { private_download_url } = (await import("cloudinary")).v2.utils;
+      const parts = url.split("/");
+      const idx = parts.findIndex((p) => p === "upload");
+      const publicId = parts.slice(idx + 2).join("/");
 
-    return cloudinary.url(publicId, {
-      resource_type: "raw",
-      secure: true,
-      sign_url: true,
-      type: "upload",
-    });
+      return private_download_url(publicId.replace(/\.[^.]+$/, ""), publicId.includes(".") ? publicId.split(".").pop() : undefined, { resource_type: "raw" });
+    }
+
+    return url;
   }
 
   return url;
