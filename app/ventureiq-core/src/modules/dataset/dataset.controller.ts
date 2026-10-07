@@ -16,6 +16,7 @@ import {
 
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
+import { embedAndStore, removeSource } from "../rag/rag.ingest.js";
 
 // CREATE
 export const create = asyncHandler(async (req: Request, res: Response) => {
@@ -31,6 +32,14 @@ export const create = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const dataset = await createDataset(parsed.data);
+
+  embedAndStore({
+    sourceType: "DATASET",
+    sourceId: dataset.id,
+    title: dataset.name,
+    text: `${dataset.name}\n${dataset.description ?? ""}\n${JSON.stringify(dataset.data)}`,
+    metadata: { source: dataset.source, reportId: dataset.reportId },
+  }).catch((err) => console.error("RAG ingest failed for dataset", dataset.id, err));
 
   return res.status(201).json({
     status: "ok",
@@ -96,6 +105,14 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 
   const dataset = await updateDataset(id, parsed.data);
 
+  embedAndStore({
+    sourceType: "DATASET",
+    sourceId: dataset.id,
+    title: dataset.name,
+    text: `${dataset.name}\n${dataset.description ?? ""}\n${JSON.stringify(dataset.data)}`,
+    metadata: { source: dataset.source, reportId: dataset.reportId },
+  }).catch((err) => console.error("RAG ingest failed for dataset", dataset.id, err));
+
   return res.status(200).json({
     status: "ok",
     data: dataset,
@@ -111,6 +128,7 @@ export const remove = asyncHandler(async (req: Request, res: Response) => {
   }
 
   await deleteDataset(id);
+  removeSource("DATASET", id).catch((err) => console.error("RAG remove failed", id, err));
 
   return res.status(204).send();
 });

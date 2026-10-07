@@ -6,7 +6,7 @@ import { embed } from "../../scripts/ollama.js";
 const { Client } = pg;
 
 export type RagSource = {
-  sourceType: "REPORT" | "TREND" | "RESEARCH";
+  sourceType: "REPORT" | "TREND" | "RESEARCH" | "DATASET";
   sourceId: string;
   title: string;
   text: string;
