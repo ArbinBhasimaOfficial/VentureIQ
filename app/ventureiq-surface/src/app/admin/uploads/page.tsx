@@ -1,10 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { FileUp, Upload } from "lucide-react";
 
 import { getFilesForReport, getFilesForResearch, uploadFile } from "@/lib/api/uploads";
+import { getDashboardReports } from "@/lib/api/dashboard";
+import { getResearch } from "@/lib/api/research";
 
 export default function AdminUploadsPage() {
   const [reportId, setReportId] = useState("");
@@ -12,6 +14,15 @@ export default function AdminUploadsPage() {
   const [files, setFiles] = useState<Awaited<ReturnType<typeof getFilesForReport>>>([]);
   const [loaded, setLoaded] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  const reports = useQuery({
+    queryKey: ["uploads-reports"],
+    queryFn: () => getDashboardReports(1, 50),
+  });
+  const research = useQuery({
+    queryKey: ["uploads-research"],
+    queryFn: () => getResearch({ page: 1, limit: 50 }),
+  });
 
   const load = async () => {
     if (reportId.trim()) {
@@ -44,18 +55,30 @@ export default function AdminUploadsPage() {
       </header>
 
       <div className="space-y-4 border border-white/[0.06] bg-white/[0.02] p-5">
-        <input
-          className="w-full rounded border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm"
-          placeholder="Report ID (optional)"
+        <select
+          className="w-full rounded border border-white/[0.08] bg-[#0a0f12] px-3 py-2 text-sm"
           value={reportId}
           onChange={(e) => setReportId(e.target.value)}
-        />
-        <input
-          className="w-full rounded border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm"
-          placeholder="Research ID (optional)"
+        >
+          <option value="">Select report (optional)</option>
+          {reports.data?.reports.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.title}
+            </option>
+          ))}
+        </select>
+        <select
+          className="w-full rounded border border-white/[0.08] bg-[#0a0f12] px-3 py-2 text-sm"
           value={researchId}
           onChange={(e) => setResearchId(e.target.value)}
-        />
+        >
+          <option value="">Select research (optional)</option>
+          {research.data?.research.map((r) => (
+            <option key={r.id} value={r.id}>
+              {r.title}
+            </option>
+          ))}
+        </select>
         <div className="flex gap-3">
           <button
             onClick={load}
@@ -86,7 +109,7 @@ export default function AdminUploadsPage() {
 
       <div className="border border-white/[0.06]">
         {loaded && files.length === 0 && (
-          <p className="px-5 py-8 text-center text-sm text-gray-600">No files for this report.</p>
+          <p className="px-5 py-8 text-center text-sm text-gray-600">No files found.</p>
         )}
         {files.map((file) => (
           <div
