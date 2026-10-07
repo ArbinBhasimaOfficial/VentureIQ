@@ -64,6 +64,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             </Link>
           ))}
         </nav>
+        <Link
+          href="/dashboard"
+          className="absolute bottom-14 left-5 flex items-center gap-2 text-xs text-gray-600 hover:text-cyan-300"
+        >
+          <LayoutDashboard className="h-4 w-4" /> User dashboard
+        </Link>
         <button
           type="button"
           onClick={() => {

@@ -14,6 +14,8 @@ import {
   FileText,
 } from "lucide-react";
 
+import { useAuthStore } from "@/store/auth.store";
+
 const NAV_ITEMS = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Markets", href: "/dashboard/markets", icon: LineChart },
@@ -26,6 +28,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
 
   return (
     <aside className="w-[248px] shrink-0 min-h-screen bg-[#050a0b] border-r border-white/[0.04] flex flex-col relative">
@@ -81,8 +84,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Footer readout, mirrors the diagnostics-panel voice from the dashboard body */}
+      {/* Footer readout + admin link */}
       <div className="px-6 py-5 border-t border-white/[0.03]">
+        {user?.role === "ADMIN" && (
+          <Link
+            href="/admin"
+            className="mb-3 block text-[11px] font-semibold text-cyan-400 hover:text-cyan-300"
+          >
+            → Admin console
+          </Link>
+        )}
         <p className="text-[10px] font-mono text-gray-600 tracking-tight">
           build 4.12.0 · node-cluster-3a
         </p>
