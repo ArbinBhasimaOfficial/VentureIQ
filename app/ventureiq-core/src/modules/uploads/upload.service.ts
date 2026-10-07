@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 
 import { db } from "../../prisma/db.js";
 import { AppError } from "../../utils/AppError.js";
-import { uploadToCloudinary, deleteFromCloudinary } from "../../utils/cloudinary.js";
+import { uploadToSupabase, deleteFromSupabase } from "../../utils/supabase.js";
 
 const UploadedFile = db.orm.public!.UploadedFile!;
 const MarketReport = db.orm.public!.MarketReport!;
@@ -36,11 +36,11 @@ export async function saveFileRecord(
 
   let storedPath = file.path;
 
-  // PDFs go to Cloudinary; other file types stay on local disk
+  // PDFs go to Supabase Storage; other file types stay on local disk
   if (file.mimetype === "application/pdf") {
-    const cloudinaryUrl = await uploadToCloudinary(file.path, file.filename.replace(/.[^.]+$/, ""));
-    if (cloudinaryUrl) {
-      storedPath = cloudinaryUrl;
+    const supabaseUrl = await uploadToSupabase(file.path, file.filename, file.mimetype);
+    if (supabaseUrl) {
+      storedPath = supabaseUrl;
     }
   }
 
@@ -87,7 +87,7 @@ export async function deleteFile(id: string) {
 
   if (file.path.startsWith(`${process.env.UPLOAD_DIR || "uploads"}`) || file.mimeType === "application/pdf") {
     if (file.path.startsWith("http")) {
-      await deleteFromCloudinary(file.path).catch(() => {});
+      await deleteFromSupabase(file.path).catch(() => {});
     } else {
       await fs.unlink(file.path).catch(() => {});
     }

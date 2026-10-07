@@ -5,7 +5,6 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
 
 import { getFileById, deleteFile, listFilesForReport, listFilesForResearch, saveFileRecord } from "./upload.service.js";
-import { getDownloadUrl } from "../../utils/cloudinary.js";
 
 
 export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
@@ -81,14 +80,13 @@ export const downloadFile = asyncHandler(
 
     if (file.path.startsWith("http")) {
       try {
-        const signedUrl = await getDownloadUrl(file.path);
-        const cloudinaryRes = await fetch(signedUrl);
+        const supabaseRes = await fetch(file.path);
 
-        if (!cloudinaryRes.ok) {
+        if (!supabaseRes.ok) {
           throw new AppError("Failed to fetch file from storage", 502);
         }
 
-        const buffer = Buffer.from(await cloudinaryRes.arrayBuffer());
+        const buffer = Buffer.from(await supabaseRes.arrayBuffer());
 
         res.setHeader("Content-Type", file.mimeType);
         res.setHeader(
