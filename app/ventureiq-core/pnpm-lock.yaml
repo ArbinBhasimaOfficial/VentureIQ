@@ -26,6 +26,9 @@ importers:
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
+      cloudinary:
+        specifier: ^2.11.0
+        version: 2.11.0
       cors:
         specifier: ^2.8.6
         version: 2.8.6
@@ -1760,6 +1763,10 @@ packages:
   closest-match@1.3.3:
     resolution: {integrity: sha512-RSdHrZwNOvt2uMQgqJDJdM/I+5MlJ1tQJEXYrbRjSMXWiCRo06g2hwObJ7+WKt2J9ySK9/pJ0Q2vbL+BPkofDA==}
 
+  cloudinary@2.11.0:
+    resolution: {integrity: sha512-o2pAkDDqrzPFE/mn9GCfFjBIGQmPs++Ts6rtkFl4vY528DNHiMovKWjH16HBjeGa9iwI7eAad24aWN2emT0aww==}
+    engines: {node: '>=9'}
+
   cluster-key-slot@1.1.1:
     resolution: {integrity: sha512-rwHwUfXL40Chm1r08yrhU3qpUvdVlgkKNeyeGPOxnW8/SyVDvgRaed/Uz54AqWNaTCAThlj6QAs3TZcKI0xDEw==}
     engines: {node: '>=0.10.0'}
@@ -2297,6 +2304,9 @@ packages:
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
 
   lru-cache@11.5.2:
     resolution: {integrity: sha512-4pfM1Ff0x50o0tQwb5ucw/RzNyD0/YJME6IVcStalZuMWxdt3sR3huStTtxz4PUmvZfRguvDejasvQ2kifR11g==}
@@ -4925,6 +4935,10 @@ snapshots:
 
   closest-match@1.3.3: {}
 
+  cloudinary@2.11.0:
+    dependencies:
+      lodash: 4.18.1
+
   cluster-key-slot@1.1.1: {}
 
   code-excerpt@4.0.0:
@@ -5484,6 +5498,8 @@ snapshots:
   lodash.once@4.1.1: {}
 
   lodash@4.17.21: {}
+
+  lodash@4.18.1: {}
 
   lru-cache@11.5.2: {}
 

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 
 import { db } from "../../prisma/db.js";
 import { AppError } from "../../utils/AppError.js";
-import { uploadToS3, deleteFromS3, getPresignedUrl } from "../../utils/s3.js";
+import { uploadToCloudinary, deleteFromCloudinary } from "../../utils/cloudinary.js";
 
 const UploadedFile = db.orm.public!.UploadedFile!;
 const MarketReport = db.orm.public!.MarketReport!;
@@ -36,11 +36,11 @@ export async function saveFileRecord(
 
   let storedPath = file.path;
 
-  // PDFs go to AWS S3; other file types stay on local disk
+  // PDFs go to Cloudinary; other file types stay on local disk
   if (file.mimetype === "application/pdf") {
-    const s3Uri = await uploadToS3(file.path, `uploads/${file.filename}`, file.mimetype);
-    if (s3Uri) {
-      storedPath = s3Uri;
+    const cloudinaryUrl = await uploadToCloudinary(file.path, file.filename.replace(/.[^.]+$/, ""));
+    if (cloudinaryUrl) {
+      storedPath = cloudinaryUrl;
     }
   }
 
@@ -86,8 +86,8 @@ export async function deleteFile(id: string) {
   }
 
   if (file.path.startsWith(`${process.env.UPLOAD_DIR || "uploads"}`) || file.mimeType === "application/pdf") {
-    if (file.path.startsWith("s3://")) {
-      await deleteFromS3(file.path).catch(() => {});
+    if (file.path.startsWith("http")) {
+      await deleteFromCloudinary(file.path).catch(() => {});
     } else {
       await fs.unlink(file.path).catch(() => {});
     }

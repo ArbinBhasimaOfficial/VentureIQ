@@ -5,7 +5,7 @@ import { asyncHandler } from "../../utils/asyncHandler.js";
 import { AppError } from "../../utils/AppError.js";
 
 import { getFileById, deleteFile, listFilesForReport, listFilesForResearch, saveFileRecord } from "./upload.service.js";
-import { getPresignedUrl } from "../../utils/s3.js";
+
 
 export const uploadFile = asyncHandler(async (req: Request, res: Response) => {
   if (!req.user) {
@@ -78,8 +78,8 @@ export const downloadFile = asyncHandler(
 
     const file = await getFileById(fileId);
 
-    if (file.path.startsWith("s3://")) {
-      const url = await getPresignedUrl(file.path);
+    if (file.path.startsWith("http")) {
+      const url = file.path;
       return res.redirect(url);
     }
 
