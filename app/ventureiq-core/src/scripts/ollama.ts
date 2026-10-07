@@ -7,8 +7,30 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_EMBED_MODEL = process.env.OPENAI_EMBED_MODEL || "text-embedding-3-small";
 const OPENAI_CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini";
 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GEMINI_EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || "text-embedding-004";
+const GEMINI_CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-1.5-flash";
+
 // Embed via OpenAI when a key is configured, otherwise via local Ollama.
 export async function embed(text: string): Promise<number[]> {
+  if (GEMINI_API_KEY) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_EMBED_MODEL}:embedContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: `models/${GEMINI_EMBED_MODEL}`, content: { parts: [{ text }] } }),
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error(`Gemini embeddings failed: ${res.status} ${await res.text()}`);
+    }
+
+    const data = (await res.json()) as { embedding: { values: number[] } };
+    return data.embedding.values;
+  }
+
   if (OPENAI_API_KEY) {
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       method: "POST",
@@ -42,6 +64,24 @@ export async function embed(text: string): Promise<number[]> {
 }
 
 export async function generate(prompt: string): Promise<string> {
+  if (GEMINI_API_KEY) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      },
+    );
+
+    if (!res.ok) {
+      throw new Error(`Gemini generate failed: ${res.status} ${await res.text()}`);
+    }
+
+    const data = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+    return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  }
+
   if (OPENAI_API_KEY) {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
