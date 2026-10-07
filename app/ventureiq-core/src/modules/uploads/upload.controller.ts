@@ -79,8 +79,25 @@ export const downloadFile = asyncHandler(
     const file = await getFileById(fileId);
 
     if (file.path.startsWith("http")) {
-      const url = file.path;
-      return res.redirect(url);
+      try {
+        const cloudinaryRes = await fetch(file.path);
+
+        if (!cloudinaryRes.ok) {
+          throw new AppError("Failed to fetch file from storage", 502);
+        }
+
+        const buffer = Buffer.from(await cloudinaryRes.arrayBuffer());
+
+        res.setHeader("Content-Type", file.mimeType);
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${encodeURIComponent(file.originalName)}"`,
+        );
+
+        return res.send(buffer);
+      } catch {
+        throw new AppError("Failed to fetch file from storage", 502);
+      }
     }
 
     return res.download(path.resolve(file.path), file.originalName);
