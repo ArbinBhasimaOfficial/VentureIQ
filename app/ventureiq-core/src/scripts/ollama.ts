@@ -8,8 +8,8 @@ const OPENAI_EMBED_MODEL = process.env.OPENAI_EMBED_MODEL || "text-embedding-3-s
 const OPENAI_CHAT_MODEL = process.env.OPENAI_CHAT_MODEL || "gpt-4o-mini";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || "text-embedding-004";
-const GEMINI_CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-1.5-flash";
+const GEMINI_EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || "gemini-embedding-001";
+const GEMINI_CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-2.5-flash";
 
 // Embed via OpenAI when a key is configured, otherwise via local Ollama.
 export async function embed(text: string): Promise<number[]> {
@@ -19,7 +19,11 @@ export async function embed(text: string): Promise<number[]> {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: `models/${GEMINI_EMBED_MODEL}`, content: { parts: [{ text }] } }),
+        body: JSON.stringify({
+          model: `models/${GEMINI_EMBED_MODEL}`,
+          content: { parts: [{ text }] },
+          outputDimensionality: 768,
+        }),
       },
     );
 
