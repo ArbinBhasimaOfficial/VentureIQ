@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.ANON_KEY;
+const SUPABASE_ANON_KEY = process.env.SERVICE_ROLE_KEY || process.env.ANON_KEY;
 const BUCKET = process.env.SUPABASE_BUCKET || "pdfs";
 
 const enabled = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
