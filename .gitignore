@@ -34,8 +34,8 @@ yarn-error.log*
 
 
 
-**/uploads/*
-!**/uploads/.gitkeep
+app/ventureiq-core/uploads/*
+!app/ventureiq-core/uploads/.gitkeep
 
 
 
